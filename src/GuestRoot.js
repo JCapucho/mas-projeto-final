@@ -2,6 +2,7 @@ import { useState } from 'react'
 import { Dialog } from '@headlessui/react'
 import { Bars3Icon, XMarkIcon } from '@heroicons/react/24/outline'
 import { Link, Outlet } from "react-router-dom";
+import logo from './logo.png';
 
 const navigation = [
     { name: 'Features', href: 'features' },
@@ -46,10 +47,10 @@ export default function GuestRoot() {
                 <div>
                     <nav className="flex h-9 items-center justify-between" aria-label="Global">
                         <div className="flex lg:min-w-0 lg:flex-1" aria-label="Global">
-                            <a href="#" className="-m-1.5 p-1.5">
-                                <span className="sr-only">Your Company</span>
-                                <img className="h-8" src="https://tailwindui.com/img/logos/mark.svg?color=indigo&shade=600" alt="" />
-                            </a>
+                            <Link className="-m-1.5 p-1.5" to={"/"}>
+                                <span className="sr-only">PetYard</span>
+                                <img className="h-8" src={logo} alt="PetYard" />
+                            </Link>
                         </div>
                         <div className="flex lg:hidden">
                             <button
@@ -82,14 +83,10 @@ export default function GuestRoot() {
                         <Dialog.Panel focus="true" className="fixed inset-0 z-10 overflow-y-auto bg-white px-6 py-6 lg:hidden">
                             <div className="flex h-9 items-center justify-between">
                                 <div className="flex">
-                                    <a href="#" className="-m-1.5 p-1.5">
-                                        <span className="sr-only">Your Company</span>
-                                        <img
-                                            className="h-8"
-                                            src="https://tailwindui.com/img/logos/mark.svg?color=indigo&shade=600"
-                                            alt=""
-                                        />
-                                    </a>
+                                    <Link className="-m-1.5 p-1.5" to={"/"}>
+                                        <span className="sr-only">PetYard</span>
+                                        <img className="h-8" src={logo} alt="PetYard" />
+                                    </Link>
                                 </div>
                                 <div className="flex">
                                     <button

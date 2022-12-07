@@ -5,10 +5,7 @@ import reportWebVitals from './reportWebVitals';
 import {
   createBrowserRouter,
   RouterProvider,
-  Route,
 } from "react-router-dom";
-
-import App from './App';
 
 import GuestRoot from './GuestRoot';
 

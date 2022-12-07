@@ -1,5 +1,6 @@
 import { initializeApp } from "firebase/app";
 import { getAuth, signInWithEmailAndPassword, createUserWithEmailAndPassword, signOut } from "firebase/auth";
+import { getFirestore, collection, addDoc } from "firebase/firestore";
 
 const firebaseConfig = {
     apiKey: "AIzaSyBcWGuh8cXzD9QsFyyUR6jTYFe7qEkSIL4",
@@ -13,6 +14,7 @@ const firebaseConfig = {
 
 const app = initializeApp(firebaseConfig);
 const auth = getAuth(app);
+const db = getFirestore(app);
 
 async function logInWithEmailAndPassword(email, password) {
     try {
@@ -23,15 +25,16 @@ async function logInWithEmailAndPassword(email, password) {
     }
 };
 
-async function registerWithEmailAndPassword(name, email, password) {
+async function registerWithEmailAndPassword(email, password, firstName, lastName) {
     try {
         const res = await createUserWithEmailAndPassword(auth, email, password);
         const user = res.user;
         await addDoc(collection(db, "users"), {
             uid: user.uid,
-            name,
             authProvider: "local",
             email,
+            firstName,
+            lastName,
         });
     } catch (err) {
         console.error(err);
