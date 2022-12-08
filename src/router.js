@@ -25,6 +25,21 @@ const ProtectedRoute = ({ children, loggedIn = true, redirect = "/" }) => {
     }
 }
 
+const boardingRoutes = [
+    {
+        name: "Features",
+        path: "features",
+        element: <Features />,
+    },
+    {
+        name: "Pricing",
+        path: "pricing",
+        element: <h1>Pricing</h1>,
+    }
+];
+
+export { boardingRoutes };
+
 export default createBrowserRouter([
     {
         path: "/",
@@ -32,13 +47,10 @@ export default createBrowserRouter([
         children: [
             {
                 path: "/",
-                element: <Landing />
-            },
-            {
-                path: "features",
-                element: <Features />
+                element: <Landing />,
+                navBarName: "Features"
             }
-        ]
+        ].concat(boardingRoutes)
     },
     {
         path: "/login",
