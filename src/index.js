@@ -5,6 +5,7 @@ import reportWebVitals from './reportWebVitals';
 import {
   createBrowserRouter,
   RouterProvider,
+  Navigate
 } from "react-router-dom";
 
 import GuestRoot from './GuestRoot';
@@ -14,6 +15,22 @@ import Features from './Features';
 
 import Login from './Login';
 import Register from './Register';
+
+import useAuthStore from "./store/auth"
+
+const ProtectedRoute = ({ children, loggedIn = true, redirect = "/" }) => {
+  const { loaded, user } = useAuthStore(state => ({ loaded: state.loaded, user: state.user }));
+
+  if (loaded) {
+    if ((user !== undefined) === loggedIn) {
+      return children;
+    } else {
+      return <Navigate to={redirect} replace />;
+    }
+  } else {
+    return <h1>Loading</h1>
+  }
+}
 
 const router = createBrowserRouter([
   {
@@ -32,11 +49,15 @@ const router = createBrowserRouter([
   },
   {
     path: "/login",
-    element: <Login />,
+    element: <ProtectedRoute loggedIn={false} redirect={"/dashboard"}><Login /></ProtectedRoute>,
   },
   {
     path: "/register",
-    element: <Register />,
+    element: <ProtectedRoute loggedIn={false} redirect={"/dashboard"}><Register /></ProtectedRoute>,
+  },
+  {
+    path: "/dashboard",
+    element: <ProtectedRoute><h1>Dashboard</h1></ProtectedRoute>,
   },
 ]);
 

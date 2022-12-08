@@ -1,16 +1,28 @@
 import { useState } from "react"
 import { LockClosedIcon } from "@heroicons/react/20/solid"
-import { Link } from "react-router-dom";
-import { logInWithEmailAndPassword } from "./firebase";
+import { Link, useNavigate } from "react-router-dom";
+import { logInWithEmailAndPassword, InvalidAuthError } from "./firebase";
 import logo from "./logo.png";
 
 export default function Login() {
+    const navigate = useNavigate();
+
     const [email, setEmail] = useState("");
     const [password, setPassword] = useState("");
 
-    function submit(event) {
+    const [banner, setBanner] = useState(null);
+
+    async function submit(event) {
         event.preventDefault();
-        logInWithEmailAndPassword(email, password);
+        try {
+            await logInWithEmailAndPassword(email, password);
+            navigate("/");
+        } catch (e) {
+            if (e instanceof InvalidAuthError)
+                setBanner("The provided email or password is not valid");
+            else
+                setBanner("There was an error while attempting to login");
+        }
     }
 
     return (
@@ -28,6 +40,11 @@ export default function Login() {
                         Sign in to your account
                     </h2>
                 </div>
+                {banner !== null &&
+                    <div className="mt-8 text-center border border-red-400 rounded-b bg-red-100 px-4 py-3 text-red-700">
+                        {banner}
+                    </div>
+                }
                 <form className="mt-8 space-y-6" onSubmit={submit}>
                     <div className="-space-y-px rounded-md shadow-sm">
                         <div>
@@ -73,17 +90,15 @@ export default function Login() {
                     {/*     </div> */}
                     {/* </div> */}
 
-                    <div>
-                        <button
-                            type="submit"
-                            className="group relative flex w-full justify-center rounded-md border border-transparent bg-indigo-600 py-2 px-4 text-sm font-medium text-white hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:ring-offset-2"
-                        >
-                            <span className="absolute inset-y-0 left-0 flex items-center pl-3">
-                                <LockClosedIcon className="h-5 w-5 text-indigo-500 group-hover:text-indigo-400" aria-hidden="true" />
-                            </span>
-                            Sign in
-                        </button>
-                    </div>
+                    <button
+                        type="submit"
+                        className="group relative flex w-full justify-center rounded-md border border-transparent bg-indigo-600 py-2 px-4 text-sm font-medium text-white hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:ring-offset-2"
+                    >
+                        <span className="absolute inset-y-0 left-0 flex items-center pl-3">
+                            <LockClosedIcon className="h-5 w-5 text-indigo-500 group-hover:text-indigo-400" aria-hidden="true" />
+                        </span>
+                        Sign in
+                    </button>
                 </form>
 
                 <div className="flex justify-center items-center w-full">

@@ -1,5 +1,5 @@
 import { initializeApp } from "firebase/app";
-import { getAuth, signInWithEmailAndPassword, createUserWithEmailAndPassword, signOut } from "firebase/auth";
+import { getAuth, signInWithEmailAndPassword, createUserWithEmailAndPassword, signOut, onAuthStateChanged } from "firebase/auth";
 import { getFirestore, collection, addDoc } from "firebase/firestore";
 
 const firebaseConfig = {
@@ -13,19 +13,43 @@ const firebaseConfig = {
 
 
 const app = initializeApp(firebaseConfig);
+
 const auth = getAuth(app);
 const db = getFirestore(app);
 
-async function logInWithEmailAndPassword(email, password) {
+export function hookAuthChanged(f) {
+    onAuthStateChanged(auth, f);
+}
+
+export class InvalidAuthError extends Error {
+    constructor() { super("Invalid login credentials") }
+}
+
+export class EmailAlreadyInUse extends Error {
+    constructor() { super("The email is already in use") }
+}
+
+export class InternalError extends Error {
+    constructor() { super("Internal error") }
+}
+
+export async function logInWithEmailAndPassword(email, password) {
     try {
-        await signInWithEmailAndPassword(auth, email, password);
+        const res = await signInWithEmailAndPassword(auth, email, password);
+        return res
     } catch (err) {
-        console.error(err);
-        alert(err.message);
+        if (err.code === "auth/user-not-found")
+            throw new InvalidAuthError()
+        if (err.code === "auth/wrong-password")
+            throw new InvalidAuthError()
+        else {
+            console.error(err.code);
+            throw new InternalError()
+        }
     }
 };
 
-async function registerWithEmailAndPassword(email, password, firstName, lastName) {
+export async function registerWithEmailAndPassword(email, password, firstName, lastName) {
     try {
         const res = await createUserWithEmailAndPassword(auth, email, password);
         const user = res.user;
@@ -37,13 +61,15 @@ async function registerWithEmailAndPassword(email, password, firstName, lastName
             lastName,
         });
     } catch (err) {
-        console.error(err);
-        alert(err.message);
+        if (err.code === "auth/email-already-in-use")
+            throw new EmailAlreadyInUse()
+        else {
+            console.error(err.code)
+            throw new InternalError()
+        }
     }
 };
 
-function logout() {
+export function logout() {
     signOut(auth);
 };
-
-export { auth, logInWithEmailAndPassword, registerWithEmailAndPassword, logout }

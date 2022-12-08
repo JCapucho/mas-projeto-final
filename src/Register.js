@@ -1,25 +1,37 @@
 import { useState } from "react"
 import { LockClosedIcon } from '@heroicons/react/20/solid'
-import { Link } from "react-router-dom";
-import { registerWithEmailAndPassword } from "./firebase";
+import { Link, useNavigate } from "react-router-dom";
+import { registerWithEmailAndPassword, EmailAlreadyInUse } from "./firebase";
 import logo from './logo.png';
 
 export default function Register() {
+    const navigate = useNavigate();
+
     const [firstName, setFirstName] = useState("");
     const [lastName, setLastName] = useState("");
     const [email, setEmail] = useState("");
     const [password, setPassword] = useState("");
     const [repeatPassword, setRepeatPassword] = useState("");
 
-    function submit(event) {
+    const [banner, setBanner] = useState(null);
+
+    async function submit(event) {
         event.preventDefault();
 
         if (password !== repeatPassword) {
-            alert("Passwords don't match");
+            setBanner("Passwords don't match");
             return
         }
 
-        registerWithEmailAndPassword(email, password, firstName, lastName);
+        try {
+            await registerWithEmailAndPassword(email, password, firstName, lastName);
+            navigate("/");
+        } catch (e) {
+            if (e instanceof EmailAlreadyInUse)
+                setBanner("The provided email is already in use");
+            else
+                setBanner("There was an error while attempting to register");
+        }
     }
 
     return (
@@ -37,6 +49,11 @@ export default function Register() {
                         Sign up for a new account
                     </h2>
                 </div>
+                {banner !== null &&
+                    <div className="mt-8 text-center border border-red-400 rounded-b bg-red-100 px-4 py-3 text-red-700">
+                        {banner}
+                    </div>
+                }
                 <form className="mt-8 space-y-6" onSubmit={submit}>
                     <input type="hidden" name="remember" defaultValue="true" />
                     <div className="grid grid-cols-6 gap-x-6 gap-y-2">
