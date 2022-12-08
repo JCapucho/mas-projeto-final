@@ -1,8 +1,10 @@
 import { useState } from "react"
 import { LockClosedIcon } from '@heroicons/react/20/solid'
 import { Link, useNavigate } from "react-router-dom";
-import { registerWithEmailAndPassword, EmailAlreadyInUse } from "./firebase";
-import logo from './logo.png';
+
+import { registerWithEmailAndPassword, EmailAlreadyInUse } from "../firebase/auth";
+
+import logo from '../logo.png';
 
 export default function Register() {
     const navigate = useNavigate();

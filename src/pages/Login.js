@@ -1,8 +1,10 @@
 import { useState } from "react"
 import { LockClosedIcon } from "@heroicons/react/20/solid"
 import { Link, useNavigate } from "react-router-dom";
-import { logInWithEmailAndPassword, InvalidAuthError } from "./firebase";
-import logo from "./logo.png";
+
+import { logInWithEmailAndPassword, InvalidAuthError } from "../firebase/auth";
+
+import logo from "../logo.png";
 
 export default function Login() {
     const navigate = useNavigate();

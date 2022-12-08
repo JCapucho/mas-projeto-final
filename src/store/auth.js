@@ -1,5 +1,5 @@
 import create from 'zustand'
-import {hookAuthChanged} from "../firebase"
+import { hookAuthChanged } from "../firebase/auth"
 
 const useAuthStore = create((set) => ({
     loaded: false,
