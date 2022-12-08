@@ -3,11 +3,13 @@ import { LockClosedIcon } from "@heroicons/react/20/solid"
 import { Link, useNavigate } from "react-router-dom";
 
 import { logInWithEmailAndPassword, InvalidAuthError } from "../firebase/auth";
+import useAuthStore from "../store/auth";
 
 import logo from "../logo.png";
 
 export default function Login() {
     const navigate = useNavigate();
+    const setUser = useAuthStore(state => state.setUser);
 
     const [email, setEmail] = useState("");
     const [password, setPassword] = useState("");
@@ -17,8 +19,9 @@ export default function Login() {
     async function submit(event) {
         event.preventDefault();
         try {
-            await logInWithEmailAndPassword(email, password);
-            navigate("/");
+            const user = await logInWithEmailAndPassword(email, password);
+            setUser(user);
+            navigate("/dashboard");
         } catch (e) {
             if (e instanceof InvalidAuthError)
                 setBanner("The provided email or password is not valid");

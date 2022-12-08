@@ -3,11 +3,13 @@ import { LockClosedIcon } from '@heroicons/react/20/solid'
 import { Link, useNavigate } from "react-router-dom";
 
 import { registerWithEmailAndPassword, EmailAlreadyInUse } from "../firebase/auth";
+import useAuthStore from "../store/auth";
 
 import logo from '../logo.png';
 
 export default function Register() {
     const navigate = useNavigate();
+    const setUser = useAuthStore(state => state.setUser);
 
     const [firstName, setFirstName] = useState("");
     const [lastName, setLastName] = useState("");
@@ -26,8 +28,9 @@ export default function Register() {
         }
 
         try {
-            await registerWithEmailAndPassword(email, password, firstName, lastName);
-            navigate("/");
+            const user = await registerWithEmailAndPassword(email, password, firstName, lastName);
+            setUser(user);
+            navigate("/dashboard");
         } catch (e) {
             if (e instanceof EmailAlreadyInUse)
                 setBanner("The provided email is already in use");

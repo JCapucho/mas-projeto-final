@@ -15,7 +15,7 @@ const ProtectedRoute = ({ children, loggedIn = true, redirect = "/" }) => {
     const { loaded, user } = useAuthStore(state => ({ loaded: state.loaded, user: state.user }));
 
     if (loaded) {
-        if ((user !== undefined) === loggedIn) {
+        if ((user !== null) === loggedIn) {
             return children;
         } else {
             return <Navigate to={redirect} replace />;
