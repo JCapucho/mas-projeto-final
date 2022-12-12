@@ -1,0 +1,12 @@
+rules_version = '2';
+service firebase.storage {
+  match /b/{bucket}/o {
+    match /{allPaths=**} {
+      // Must be logged in to access files
+      allow read: if request.auth != null;
+      // Must be part of staff to create or update files
+      allow write: if
+          firestore.get(/databases/(default)/documents/users/$(request.auth.uid)).data.staff;
+    }
+  }
+}
