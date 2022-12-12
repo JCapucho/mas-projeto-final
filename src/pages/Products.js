@@ -10,6 +10,7 @@ import useAuthStore from "../store/auth";
 function NewProductForm({ added }) {
     const [image, setImage] = useState(null);
     const [name, setName] = useState("");
+    const [section, setSection] = useState("");
     const [price, setPrice] = useState(0);
 
     const handleFileSelected = (e) => {
@@ -24,7 +25,7 @@ function NewProductForm({ added }) {
             name,
             photo: "",
             price: priceFloat,
-            section: "Alimentos"
+            section
         };
 
         const productsCollection = collection(db, 'products');
@@ -58,6 +59,20 @@ function NewProductForm({ added }) {
                     rows="1"
                     value={name}
                     onChange={(event) => setName(event.target.value)}
+                    required
+                />
+            </div>
+            <div className="w-full">
+                <label htmlFor="section" className="block text-sm font-medium text-gray-700">
+                    Section
+                </label>
+                <input
+                    id="section"
+                    type="text"
+                    placeholder="Section"
+                    className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm"
+                    value={section}
+                    onChange={(event) => setSection(event.target.value)}
                     required
                 />
             </div>
@@ -101,10 +116,11 @@ function NewProductForm({ added }) {
     </div>
 }
 
-function ProductCard({ name, photo, price }) {
+function ProductCard({ name, photo, price, section, isStaff }) {
     return (
         <div className="rounded-lg shadow-lg bg-white p-6 w-96">
             <img className="rounded-t-lg mx-auto" style={{ maxHeight: "300px", maxWidth: "300px" }} src={photo} alt={name} />
+            {isStaff && <p className="text-gray-900 text-lg text-center mb-2">section: {section}</p>}
             <p className="text-gray-900 text-lg text-center mb-2 mt-4">{name}</p>
             <h5 className="text-gray-900 text-xl text-center font-bold mb-2">{price.toFixed(2)}€</h5>
             <div className="flex justify-center mt-4">
@@ -139,7 +155,7 @@ export default function Products() {
 
     return <>
         <div className="flex flex-wrap justify-center items-center gap-5 m-5 flex-col sm:flex-row">
-            {products.map((product, i) => <ProductCard key={i} {...product} />)}
+            {products.map((product, i) => <ProductCard key={i} isStaff={user?.staff === true} {...product} />)}
         </div>
         {user?.staff && <NewProductForm added={(doc) => setProducts(old => [...old, doc])} />}
     </>;
