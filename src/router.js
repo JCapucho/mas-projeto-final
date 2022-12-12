@@ -56,7 +56,7 @@ export default createBrowserRouter([
         element: <GuestRoot />,
         children: [
             {
-                path: "./",
+                index: true,
                 element: <Landing />,
             }
         ].concat(boardingRoutes)
@@ -74,7 +74,7 @@ export default createBrowserRouter([
         element: <ProtectedRoute><UserRoot /></ProtectedRoute>,
         children: [
             {
-                path: "./",
+                index: true,
                 element: <></>,
             }
         ].concat(userRoutes)
