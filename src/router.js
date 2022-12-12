@@ -11,6 +11,8 @@ import Features from './pages/Features';
 import Login from './pages/Login';
 import Register from './pages/Register';
 
+import Products from './pages/Products';
+
 const ProtectedRoute = ({ children, loggedIn = true, redirect = "/" }) => {
     const { loaded, user } = useAuthStore(state => ({ loaded: state.loaded, user: state.user }));
 
@@ -38,7 +40,15 @@ const boardingRoutes = [
     }
 ];
 
-export { boardingRoutes };
+const userRoutes = [
+    {
+        name: "Products",
+        path: "products",
+        element: <Products />,
+    }
+];
+
+export { boardingRoutes, userRoutes };
 
 export default createBrowserRouter([
     {
@@ -46,9 +56,8 @@ export default createBrowserRouter([
         element: <GuestRoot />,
         children: [
             {
-                path: "/",
+                path: "./",
                 element: <Landing />,
-                navBarName: "Features"
             }
         ].concat(boardingRoutes)
     },
@@ -63,5 +72,11 @@ export default createBrowserRouter([
     {
         path: "/dashboard",
         element: <ProtectedRoute><UserRoot /></ProtectedRoute>,
+        children: [
+            {
+                path: "./",
+                element: <></>,
+            }
+        ].concat(userRoutes)
     },
 ]);
