@@ -1,9 +1,7 @@
 import { useState, useEffect } from 'react';
 import { ShoppingCartIcon } from '@heroicons/react/24/solid';
 
-import { ref, uploadBytes, getDownloadURL } from "firebase/storage";
-import { collection, addDoc, updateDoc, getDocs } from "firebase/firestore";
-import { db, storage } from "../firebase/base";
+import { addProduct, getAllProducts } from "../managers/ProductsManager";
 
 import useAuthStore from "../store/auth";
 
@@ -21,27 +19,13 @@ function NewProductForm({ added }) {
         event.preventDefault();
         const priceFloat = parseFloat(price);
 
-        const productData = {
+        const addedProduct = await addProduct({
             name,
-            photo: "",
             price: priceFloat,
             section
-        };
+        }, image);
 
-        const productsCollection = collection(db, 'products');
-        const productDoc = await addDoc(productsCollection, productData);
-
-        const product_id = productDoc.id;
-
-        const imageRef = ref(storage, `products/${product_id}`);
-
-        await uploadBytes(imageRef, image);
-        const imageUrl = await getDownloadURL(imageRef);
-
-        productData.photo = imageUrl;
-        await updateDoc(productDoc, { photo: productData.photo });
-
-        added(productData);
+        added(addedProduct);
     }
 
     return <div className="flex justify-center">
@@ -138,19 +122,7 @@ export default function Products() {
     const [products, setProducts] = useState([]);
 
     useEffect(() => {
-        async function fetchProducts() {
-            const productsCollection = collection(db, 'products');
-
-            const newProductsQuery = await getDocs(productsCollection);
-
-            const newProducts = [];
-            newProductsQuery.forEach((doc) => {
-                newProducts.push(doc.data());
-            });
-            setProducts(newProducts);
-        }
-
-        fetchProducts();
+        getAllProducts().then(setProducts);
     }, []);
 
     return <>
