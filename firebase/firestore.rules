@@ -9,5 +9,9 @@ service cloud.firestore {
       allow read: if request.auth != null;
       allow write: if get(/databases/(default)/documents/users/$(request.auth.uid)).data.staff;
     }
+    match /sections/{document=**} {
+      allow read: if request.auth != null;
+      allow write: if get(/databases/(default)/documents/users/$(request.auth.uid)).data.staff;
+    }
   }
 }
