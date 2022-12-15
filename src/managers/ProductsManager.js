@@ -1,5 +1,5 @@
 import { ref, uploadBytes, getDownloadURL } from "firebase/storage";
-import { collection, doc, setDoc, getDocs } from "firebase/firestore";
+import { collection, doc, setDoc, getDocs, query, where } from "firebase/firestore";
 import { db, storage } from "../firebase/base";
 
 const sectionsCollection = collection(db, 'sections');
@@ -55,7 +55,7 @@ export async function addSection(sectionData, image) {
 ///   name: string,
 ///   price: float,
 ///   sectionId: string,
-///   section: string,
+///   section: FirebaseDocRef,
 ///   photo: string,
 /// }
 /// ```
@@ -86,7 +86,7 @@ export async function addProduct(productData, image) {
 ///   id: string,
 ///   name: string,
 ///   price: float,
-///   section: string,
+///   section: FirebaseDocRef,
 ///   photo: string,
 /// }
 /// ```
@@ -126,4 +126,32 @@ export async function getAllSections() {
     });
 
     return sections;
+}
+
+/// Retrieves a list of all the products in the section defined by id
+///
+/// # Returns
+///
+/// An Array of objects with the following shape:
+/// ```
+/// {
+///   id: string,
+///   name: string,
+///   price: float,
+///   section: FirebaseDocRef,
+///   photo: string,
+/// }
+/// ```
+export async function getProductsInSection(id) {
+    const q = query(productsCollection, where("section", "==", doc(sectionsCollection, id)));
+    const productsQuery = await getDocs(q);
+
+    const products = [];
+    productsQuery.forEach((doc) => {
+        const product = doc.data();
+        product.id = doc.id;
+        products.push(product);
+    });
+
+    return products;
 }

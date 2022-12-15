@@ -11,7 +11,7 @@ import Features from './pages/Features';
 import Login from './pages/Login';
 import Register from './pages/Register';
 
-import Products from './pages/Products';
+import ProductsRoot from './pages/ProductsRoot';
 
 const ProtectedRoute = ({ children, loggedIn = true, redirect = "/" }) => {
     const { loaded, user } = useAuthStore(state => ({ loaded: state.loaded, user: state.user }));
@@ -43,8 +43,9 @@ const boardingRoutes = [
 const userRoutes = [
     {
         name: "Products",
-        path: "products",
-        element: <Products />,
+        path: "products/*",
+        navbarTo: "products",
+        element: <ProductsRoot />,
     }
 ];
 

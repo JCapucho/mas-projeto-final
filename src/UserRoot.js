@@ -19,7 +19,7 @@ export default function UserRoot() {
         const match = useMatch({ path: resolver.pathname, end: true });
 
         return <Link
-            to={item.path}
+            to={item.navbarTo ?? item.path}
             className={classNames(
                 match ? 'bg-gray-900 text-white' : 'text-gray-300 hover:bg-gray-700 hover:text-white',
                 className,
