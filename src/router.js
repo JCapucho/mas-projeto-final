@@ -11,6 +11,7 @@ import Features from './pages/Features';
 import Login from './pages/Login';
 import Register from './pages/Register';
 
+import Appointments from './pages/Appointments';
 import ProductsRoot from './pages/ProductsRoot';
 
 const ProtectedRoute = ({ children, loggedIn = true, redirect = "/" }) => {
@@ -41,6 +42,12 @@ const boardingRoutes = [
 ];
 
 const userRoutes = [
+    {
+        name: "Appointments",
+        path: "appointments/*",
+        navbarTo: "appointments",
+        element: <Appointments />,
+    },
     {
         name: "Products",
         path: "products/*",

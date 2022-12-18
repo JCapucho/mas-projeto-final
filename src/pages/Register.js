@@ -2,7 +2,8 @@ import { useState } from "react"
 import { LockClosedIcon } from '@heroicons/react/20/solid'
 import { Link, useNavigate } from "react-router-dom";
 
-import { registerWithEmailAndPassword, EmailAlreadyInUse } from "../firebase/auth";
+import { EmailAlreadyInUse } from "../firebase/auth";
+import { register } from "../managers/AuthManager";
 import useAuthStore from "../store/auth";
 
 import logo from '../logo.png';
@@ -28,7 +29,7 @@ export default function Register() {
         }
 
         try {
-            const user = await registerWithEmailAndPassword(email, password, firstName, lastName);
+            const user = await register(email, password, firstName, lastName);
             setUser(user);
             navigate("/dashboard");
         } catch (e) {

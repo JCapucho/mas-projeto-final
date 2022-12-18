@@ -1,6 +1,5 @@
 import { signInWithEmailAndPassword, createUserWithEmailAndPassword, signOut, onAuthStateChanged } from "firebase/auth";
-import { setDoc, doc, getDoc } from "firebase/firestore";
-import { auth, db } from "./base.js"
+import { auth } from "./base.js"
 
 export class InvalidAuthError extends Error {
     constructor() { super("Invalid login credentials") }
@@ -22,9 +21,7 @@ export function hookAuthChanged(f) {
 export async function logInWithEmailAndPassword(email, password) {
     try {
         const res = await signInWithEmailAndPassword(auth, email, password);
-        const userRef = doc(db, "users", res.user.uid);
-        const userSnap = await getDoc(userRef);
-        return userSnap.data();
+        return res;
     } catch (err) {
         if (err.code === "auth/user-not-found")
             throw new InvalidAuthError()
@@ -40,15 +37,7 @@ export async function logInWithEmailAndPassword(email, password) {
 export async function registerWithEmailAndPassword(email, password, firstName, lastName) {
     try {
         const res = await createUserWithEmailAndPassword(auth, email, password);
-        const data = {
-            email,
-            firstName,
-            lastName,
-            staff: false
-        };
-        const userRef = doc(db, "users", res.user.uid);
-        await setDoc(userRef, data);
-        return data;
+        return res;
     } catch (err) {
         if (err.code === "auth/email-already-in-use")
             throw new EmailAlreadyInUse()

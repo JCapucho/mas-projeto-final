@@ -5,7 +5,7 @@ import { Link, Outlet, useMatch, useResolvedPath } from "react-router-dom";
 
 import { userRoutes } from "./router";
 
-import { logout } from "./firebase/auth";
+import { logout } from "./managers/AuthManager";
 
 import logo from './logo.png';
 

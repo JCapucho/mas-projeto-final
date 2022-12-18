@@ -32,3 +32,18 @@ export function FormTextarea({ children, changed, ...rest }) {
         />
     </div>;
 }
+
+export function FormCheckbox({ children, changed, ...rest }) {
+    const id = useId();
+
+    return <div className="w-full my-3 flex items-end">
+        <input 
+            id={id}
+            type="checkbox"
+            className="appearance-none h-5 w-5 border border-gray-300 rounded-md bg-white checked:bg-blue-600 checked:border-blue-600 focus:outline-none transition duration-200 align-top bg-no-repeat bg-center bg-contain float-left mr-2 cursor-pointer" 
+            onChange={(event) => changed(event.target.value)}
+            {...rest}
+        />
+        <FormLabel id={id}>{children}</FormLabel>
+    </div>;
+}
