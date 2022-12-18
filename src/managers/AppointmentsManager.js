@@ -73,6 +73,39 @@ export async function getUserAppointments(userId) {
     return appointments;
 }
 
+/// Retrieves a list of all the appointments the user is responsible for
+///
+/// # Returns
+///
+/// An Array of objects with the following shape:
+/// ```
+/// {
+///   id: string,
+///   start: Date,
+///   end: Date,
+///   location: string,
+///   owner: FirebaseDocRef,
+///   responsible: FirebaseDocRef,
+///   approved: boolean,
+/// }
+/// ```
+export async function getMedicAppointments(userId) {
+    const userRef = doc(usersCollection, userId);
+    const q = query(appointmentsCollection, where("responsible", "==", userRef));
+    const appointmentsQuery = await getDocs(q);
+
+    const appointments = [];
+    appointmentsQuery.forEach((doc) => {
+        const appointment = doc.data();
+        appointment.id = doc.id;
+        appointment.start = appointment.start.toDate();
+        appointment.end = appointment.end.toDate();
+        appointments.push(appointment);
+    });
+
+    return appointments;
+}
+
 /// Retrieves a list of all the appointments in the given location
 ///
 /// # Returns

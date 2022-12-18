@@ -6,7 +6,12 @@ import timeGridPlugin from '@fullcalendar/timegrid'
 
 import useAuthStore from "../store/auth"
 
-import { getAppointmentInfo, getUserAppointments, getLocationAppointments } from "../managers/AppointmentsManager";
+import {
+    getAppointmentInfo,
+    getUserAppointments,
+    getLocationAppointments,
+    getMedicAppointments
+} from "../managers/AppointmentsManager";
 
 import UserAppointmentEntry from "../components/UserAppointmentEntry";
 import ScheduleAppointmentMedic from "../components/ScheduleAppointmentMedic";
@@ -55,7 +60,7 @@ export default function Appointments() {
 
     function medicEvents(id) {
         return async (info, success, failure) => {
-            const appointments = await getUserAppointments(id);
+            const appointments = await getMedicAppointments(id);
             const events = await Promise.all(appointments.map(appointmentToEvent));
 
             success(events)
