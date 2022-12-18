@@ -1,5 +1,5 @@
 import { ref, uploadBytes, getDownloadURL } from "firebase/storage";
-import { collection, doc, setDoc, getDocs, query, where } from "firebase/firestore";
+import { collection, doc, updateDoc, setDoc, getDocs, getDoc, deleteDoc, query, where } from "firebase/firestore";
 import { db, storage } from "../firebase/base";
 
 const sectionsCollection = collection(db, 'sections');
@@ -52,6 +52,7 @@ export async function addSection(sectionData, image) {
 /// An object with the following shape:
 /// ```
 /// {
+///   id: string,
 ///   name: string,
 ///   price: float,
 ///   sectionId: string,
@@ -73,7 +74,63 @@ export async function addProduct(productData, image) {
     productData.photo = imageUrl;
     await setDoc(productRef, productData);
 
+    productData.id = product_id;
     return productData;
+}
+
+/// Edits a product in the database, `image` must be a `Blob`, `File` or `null`,
+/// `productData` must be an object with the following shape:
+/// ```
+/// {
+///   id: string,
+///   name?: string,
+///   price?: float,
+///   sectionId?: string,
+/// }
+/// ```
+///
+/// # Returns
+///
+/// An object with the following shape:
+/// ```
+/// {
+///   name: string,
+///   price: float,
+///   sectionId: string,
+///   section: FirebaseDocRef,
+///   photo: string,
+/// }
+/// ```
+export async function editProduct(id, productData, image) {
+    const productRef = doc(productsCollection, id);
+
+    if (productData.sectionId)
+        productData.section = doc(sectionsCollection, productData.sectionId);
+
+    if (image !== null) {
+        const imageRef = ref(storage, `products/${id}`);
+
+        await uploadBytes(imageRef, image);
+        const imageUrl = await getDownloadURL(imageRef);
+
+        productData.photo = imageUrl;
+    }
+
+    await updateDoc(productRef, productData);
+
+    const snap = await getDoc(productRef);
+    const data = snap.data();
+
+    data.id = id;
+
+    return data;
+}
+
+/// Deletes a product from the database
+export async function deleteProduct(id) {
+    const productRef = doc(productsCollection, id);
+
+    return await deleteDoc(productRef);
 }
 
 /// Retrieves a list of all the products
@@ -139,6 +196,7 @@ export async function getAllSections() {
 ///   name: string,
 ///   price: float,
 ///   section: FirebaseDocRef,
+///   sectionId: string,
 ///   photo: string,
 /// }
 /// ```

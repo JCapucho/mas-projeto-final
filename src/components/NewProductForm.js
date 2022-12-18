@@ -1,8 +1,8 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { Combobox } from '@headlessui/react'
 import { CheckIcon, ChevronUpDownIcon } from '@heroicons/react/24/solid';
 
-import { addProduct } from "../managers/ProductsManager";
+import { addProduct, editProduct } from "../managers/ProductsManager";
 
 import GenericDialog from "./GenericDialog";
 import GenericButton from "./GenericButton";
@@ -10,7 +10,7 @@ import FileInput from "./FileInput";
 import FormLabel from "./FormLabel";
 import FormInput, { FormTextarea } from "./FormInput";
 
-function SectionPicker({ sections, value, onChange }) {
+function SectionPicker({ sections, value, onChange, required }) {
     const [query, setQuery] = useState('');
 
     const filteredSections =
@@ -30,7 +30,7 @@ function SectionPicker({ sections, value, onChange }) {
                     className="w-full border-none py-2 pl-3 pr-10 leading-5 text-gray-900 focus:ring-0"
                     onChange={(event) => setQuery(event.target.value)}
                     displayValue={(section) => section?.name}
-                    required
+                    required={required}
                 />
                 <Combobox.Button className="absolute inset-y-0 right-0 flex items-center pr-2">
                     <ChevronUpDownIcon
@@ -76,13 +76,21 @@ function SectionPicker({ sections, value, onChange }) {
     </Combobox>;
 }
 
-export default function NewProductForm({ sections, added, open, onClose }) {
+export default function ProductForm({ product = null, sections, onNewProduct, open, onClose }) {
     const [image, setImage] = useState(null);
-    const [name, setName] = useState("");
-    const [section, setSection] = useState(null);
-    const [price, setPrice] = useState(0);
+    const [name, setName] = useState(product?.name || "");
+    const [section, setSection] = useState(sections.find((item) => item.id === product?.sectionId) || null);
+    const [price, setPrice] = useState(product?.price || 0);
+
+    useEffect(() => {
+        setName(product?.name || "");
+        setSection(sections.find((item) => item.id === product?.sectionId) || null);
+        setPrice(product?.price || 0);
+    }, [product, sections]);
 
     const hasSections = sections !== 0;
+    const newForm = product === null;
+    const title = newForm ? "Add Product" : "Edit Product";
 
     const handleFileSelected = (e) => {
         setImage(e.target.files[0])
@@ -92,24 +100,39 @@ export default function NewProductForm({ sections, added, open, onClose }) {
         event.preventDefault();
         const priceFloat = parseFloat(price);
 
-        const addedProduct = await addProduct({
-            name,
-            price: priceFloat,
-            sectionId: section.id
-        }, image);
+        let addedProduct;
 
-        added(addedProduct);
+        if (newForm) {
+            addedProduct = await addProduct({
+                name,
+                price: priceFloat,
+                sectionId: section.id
+            }, image);
+        } else {
+            const updatedData = {};
+
+            if(name !== product.name) updatedData.name = name;
+            if(priceFloat !== product.price) updatedData.price = priceFloat;
+            if(section?.id !== product.sectionId) updatedData.sectionId = section?.id;
+
+            addedProduct = await editProduct(product.id, updatedData, image);
+        }
+
+        if(onNewProduct) {
+            onNewProduct(addedProduct);
+            onClose();
+        }
     }
 
     return (
-        <GenericDialog open={open} onClose={onClose} title={"Add Product"}>
+        <GenericDialog open={open} onClose={onClose} title={title}>
             <form onSubmit={submit} className="mt-5 flex items-center flex-col gap-3">
                 <FormTextarea 
                     type="text"
                     placeholder="Product name"
                     value={name}
-                    required
                     changed={setName}
+                    required={newForm}
                 >
                     Product Name
                 </FormTextarea>
@@ -117,7 +140,12 @@ export default function NewProductForm({ sections, added, open, onClose }) {
                     <FormLabel id="section">Section</FormLabel>
                     {
                         hasSections ?
-                            <SectionPicker sections={sections} value={section} onChange={setSection} /> :
+                            <SectionPicker 
+                                sections={sections}
+                                value={section}
+                                onChange={setSection}
+                                required={newForm}
+                            /> :
                             <h1>No sections</h1>
                     }
                 </div>
@@ -126,17 +154,17 @@ export default function NewProductForm({ sections, added, open, onClose }) {
                     type="number"
                     placeholder="Price"
                     value={price}
-                    required
                     changed={setPrice}
+                    required={newForm}
                 >
                     Price
                 </FormInput>
                 <div className="w-full">
                     <FormLabel id="image">Image</FormLabel>
-                    <FileInput id="image" handleFileSelected={handleFileSelected} required />
+                    <FileInput id="image" handleFileSelected={handleFileSelected} required={newForm} />
                 </div>
                 <GenericButton type="submit" disabled={!hasSections}>
-                    Add Product
+                    {title}
                 </GenericButton>
             </form>
         </GenericDialog>

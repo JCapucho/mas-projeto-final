@@ -1,8 +1,8 @@
 import { useState, useEffect } from 'react';
-import { ShoppingCartIcon, ArrowUturnLeftIcon } from '@heroicons/react/24/solid';
 import { Routes, Route, Link, useParams } from "react-router-dom";
+import { ShoppingCartIcon, ArrowUturnLeftIcon, TrashIcon, PencilSquareIcon } from '@heroicons/react/24/solid';
 
-import { getAllSections, getAllProducts, getProductsInSection } from "../managers/ProductsManager";
+import { getAllSections, deleteProduct, getAllProducts, getProductsInSection } from "../managers/ProductsManager";
 
 import useAuthStore from "../store/auth";
 
@@ -10,11 +10,11 @@ import GenericButton from "../components/GenericButton";
 import NewSectionForm from "../components/NewSectionForm";
 import NewProductForm from "../components/NewProductForm";
 
-function ProductCard({ name, photo, price, section, isStaff }) {
+function ProductCard({ name, photo, price, section, children }) {
     return (
         <div className="rounded-lg shadow-lg bg-white p-6 w-96">
+            {children}
             <img className="rounded-t-lg mx-auto" style={{ maxHeight: "300px", maxWidth: "300px" }} src={photo} alt={name} />
-            {isStaff && <p className="text-gray-900 text-lg text-center mb-2">section: {section.id}</p>}
             <p className="text-gray-900 text-lg text-center mb-2 mt-4">{name}</p>
             <h5 className="text-gray-900 text-xl text-center font-bold mb-2">{price.toFixed(2)}€</h5>
             <div className="flex justify-center mt-4">
@@ -27,7 +27,7 @@ function ProductCard({ name, photo, price, section, isStaff }) {
     );
 }
 
-function SectionCard({ id, name, photo, isStaff }) {
+function SectionCard({ id, name, photo }) {
     return (
         <div className="self-stretch rounded-lg shadow-lg bg-white p-6 w-96 flex flex-col justify-between">
             <img className="rounded-t-lg mx-auto" style={{ maxHeight: "300px", maxWidth: "300px" }} src={photo} alt={name} />
@@ -60,8 +60,10 @@ function SectionsRoute({ sections, isStaff }) {
     </>;
 }
 
-function ProductsRoute({ isStaff }) {
+function ProductsRoute({ isStaff, sections }) {
     const [products, setProducts] = useState([]);
+    const [productModal, setProductModal] = useState(false);
+    const [editProduct, setEditProduct] = useState(0);
 
     const { sectionId } = useParams();
 
@@ -74,6 +76,21 @@ function ProductsRoute({ isStaff }) {
     }, [sectionId]);
 
     return <>
+        {isStaff && <NewProductForm 
+            product={products[editProduct]}
+            open={productModal}
+            onClose={() => setProductModal(false)}
+            onNewProduct={(product) => {
+                let newProducts;
+                if (sectionId === undefined || product.sectionId === sectionId)
+                    newProducts = products.map((c, i) => i === editProduct ? product : c);
+                else
+                    newProducts = products.filter((c, i) => i !== editProduct);
+                setProducts(newProducts);
+                setProductModal(false);
+            }}
+            sections={sections}
+        />}
         <div className="flex m-5">
             <Link
                 to={".."}
@@ -84,7 +101,31 @@ function ProductsRoute({ isStaff }) {
             </Link>
         </div>
         <div className="flex flex-wrap justify-center items-center gap-5 m-5 flex-col sm:flex-row">
-            {products.map((product, i) => <ProductCard key={i} isStaff={isStaff} {...product} />)}
+            {products.map((product, i) => 
+                <ProductCard key={i} isStaff={isStaff} {...product}>
+                    {isStaff && <div className="flex justify-end gap-2">
+                        <button
+                            className="bg-blue-500 hover:bg-blue-700 text-white font-bold p-2 rounded"
+                            onClick={() => {
+                                setEditProduct(i);
+                                setProductModal(true);
+                            }}
+                        >
+                            <PencilSquareIcon className="h-6 w-6" />
+                        </button>
+                        <button
+                            className="bg-red-500 hover:bg-blue-700 text-white font-bold p-2 rounded"
+                            onClick={() => {
+                                deleteProduct(product.id);
+                                const newProducts = products.filter((c) => c.id !== product.id);
+                                setProducts(newProducts);
+                            }}
+                        >
+                            <TrashIcon className="h-6 w-6" />
+                        </button>
+                    </div>}
+                </ProductCard>
+            )}
         </div>
     </>;
 }
