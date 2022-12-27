@@ -1,4 +1,4 @@
-import { collection, doc, getDocs, getDoc, setDoc, query, where } from "firebase/firestore";
+import { collection, doc, getDocs, getDoc, setDoc, updateDoc, query, where } from "firebase/firestore";
 import { db } from "../firebase/base";
 
 import { usersCollection } from "./UserManager";
@@ -89,7 +89,7 @@ export async function getUserAppointments(userId) {
 ///   approved: boolean,
 /// }
 /// ```
-export async function getMedicAppointments(userId) {
+export async function getResponsibleAppointments(userId) {
     const userRef = doc(usersCollection, userId);
     const q = query(appointmentsCollection, where("responsible", "==", userRef));
     const appointmentsQuery = await getDocs(q);
@@ -159,7 +159,7 @@ export async function getAppointmentInfo(id) {
 ///
 /// # Inputs
 ///
-/// - `info`:
+/// - `details`:
 /// ```
 /// {
 ///   reason: string,
@@ -192,10 +192,10 @@ export async function getAppointmentInfo(id) {
 ///   owner: FirebaseDocRef,
 ///   responsible: FirebaseDocRef,
 ///   approved: boolean,
-///   reason: string,
+///   info: { reason: string }
 /// }
 /// ```
-export async function scheduleByMedic(info, medicId, timeslot, userId) {
+export async function scheduleByMedic(details, medicId, timeslot, userId) {
     const ownerRef = doc(usersCollection, userId);
     const responsibleRef = doc(usersCollection, medicId);
     const appointmentRef = doc(appointmentsCollection);
@@ -207,7 +207,7 @@ export async function scheduleByMedic(info, medicId, timeslot, userId) {
         start: timeslot.start,
         end: timeslot.end,
 
-        location: info.remote ? "Remoto" : null,
+        location: details.remote ? "Remoto" : null,
         responsible: responsibleRef
     };
 
@@ -215,9 +215,8 @@ export async function scheduleByMedic(info, medicId, timeslot, userId) {
     data.id = appointmentRef.id;
 
     const infoRef = doc(appointmentRef, "private", "info");
-    await setDoc(infoRef, { reason: info.reason });
-
-    data.reason = info.reason;
+    data.info = { reason: details.reason };
+    await setDoc(infoRef, data.info);
 
     return data;
 }
@@ -260,7 +259,7 @@ export async function scheduleByMedic(info, medicId, timeslot, userId) {
 ///   owner: FirebaseDocRef,
 ///   responsible: FirebaseDocRef,
 ///   approved: boolean,
-///   reason: string,
+///   info: { reason: string }
 /// }
 /// ```
 export async function scheduleByClinic(reason, location, timeslot, userId) {
@@ -282,9 +281,24 @@ export async function scheduleByClinic(reason, location, timeslot, userId) {
     data.id = appointmentRef.id;
 
     const infoRef = doc(appointmentRef, "private", "info");
-    await setDoc(infoRef, { reason: reason });
-
-    data.reason = reason;
+    data.info = { reason: reason };
+    await setDoc(infoRef, data.info);
 
     return data;
+}
+
+/// Approves a appointment, optionally modifying it
+///
+/// # Inputs
+///
+/// - `appointmentId`: `string`
+export async function approveAppointment(appointmentId, modified) {
+    const appointmentRef = doc(appointmentsCollection, appointmentId);
+    
+    let changes = { approved: true };
+
+    if (modified)
+        changes = {...changes, ...modified};
+
+    await updateDoc(appointmentRef, changes);
 }

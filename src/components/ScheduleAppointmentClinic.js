@@ -8,7 +8,7 @@ import useAuthStore from "../store/auth"
 import { scheduleByClinic } from "../managers/AppointmentsManager";
 import { getAllLocations } from "../managers/LocationsManager";
 
-import { FormTextarea, FormCheckbox } from "./FormInput";
+import { FormTextarea } from "./FormInput";
 import GenericButton from "./GenericButton";
 
 export default function ScheduleAppointmentClinic({ locationSelected, newEvent, onScheduledAppointment }) {

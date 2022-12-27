@@ -1,9 +1,9 @@
-import create from 'zustand'
+import { createStore } from "./utils";
 import { hookAuthChanged } from "../firebase/auth"
 
 import { getUser } from "../managers/UserManager";
 
-const useAuthStore = create((set) => ({
+const useAuthStore = createStore("AuthStore", (set) => ({
     loaded: false,
     user: null,
     setUser: (user) => set(user)

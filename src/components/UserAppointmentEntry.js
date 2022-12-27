@@ -1,17 +1,21 @@
-import { useState, useEffect } from 'react';
+import GenericButton from "./GenericButton";
 
-import { getAppointmentInfo } from "../managers/AppointmentsManager";
+function StaffControls({appointment, appointmentApproved, user}) {
+    if(!appointment.approved)
+        return <GenericButton
+            onClick={() => appointmentApproved(appointment)}
+            className="mt-0"
+        >
+            Approve
+        </GenericButton>
+    else
+        return <p className="text-green-700">Approved</p>
+}
 
-export default function UserAppointmentEntry({appointment}) {
-    const [info, setInfo] = useState([]);
-
-    useEffect(() => {
-        getAppointmentInfo(appointment.id).then(setInfo);
-    }, [appointment]);
-
-    const sameDay = appointment.start.getFullYear() === appointment.end.getFullYear()
-        && appointment.start.getMonth() === appointment.end.getMonth()
-        && appointment.start.getDate() === appointment.end.getDate();
+function DateRangeDisplay({range, className}) {
+    const sameDay = range.start.getFullYear() === range.end.getFullYear()
+        && range.start.getMonth() === range.end.getMonth()
+        && range.start.getDate() === range.end.getDate();
 
     const formatDate = (date) => sameDay
         ? date.toLocaleTimeString('pt-PT', {
@@ -25,14 +29,30 @@ export default function UserAppointmentEntry({appointment}) {
             minute: '2-digit',
           });
 
-    return <div className="w-full rounded-lg shadow-lg bg-white px-6 py-4 mt-5">
-        <div className="flex justify-between">
-            <h1>{formatDate(appointment.start)} - {formatDate(appointment.end)}</h1>
-            <h1>{appointment.location}</h1>
+    return <h1 className={className}>
+        {range.start.toLocaleString('pt-PT', {
+            month: 'numeric',
+            day: 'numeric',
+            hour: '2-digit',
+            minute: '2-digit',
+          })} - {formatDate(range.end)}
+    </h1>
+}
+
+export default function UserAppointmentEntry({appointment, appointmentApproved, user}) {
+    const actions = user.id === appointment.responsible.id
+        ? <StaffControls appointment={appointment} user={user} appointmentApproved={appointmentApproved} />
+        : !appointment.approved && <p className="text-red-700">Missing approval</p>;
+
+    return <div className="w-full flex rounded-lg shadow-lg bg-white px-6 py-4 mt-5 justify-between">
+        <div className="flex flex-col flex-grow items-start">
+            <DateRangeDisplay range={appointment} />
+            {appointment.modified && <DateRangeDisplay className="text-red-700" range={appointment.modified} />}
+            <p>{appointment.info.reason}</p>
         </div>
-        <div className="flex justify-between">
-            <p>{info.reason}</p>
-            {!info.approved && <p className="text-red-700">Missing approval</p>}
+        <div className="flex flex-col flex-grow items-end ml-10 justify-between">
+            <h1>{appointment.location}</h1>
+            {actions}
         </div>
     </div>
 }
