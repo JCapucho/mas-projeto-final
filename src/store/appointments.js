@@ -11,77 +11,78 @@ const useAppointmentsStore = createStore("AppointmentsStore", (set) => ({
     appointments: [],
 
     actions: {
-    appointmentApproved: async (appointment) => {
-        await approveAppointment(appointment.id, appointment.modified);
+        removeAll: () => set({ appointments: [] }),
+        appointmentApproved: async (appointment) => {
+            await approveAppointment(appointment.id, appointment.modified);
 
-        appointment.approved = true;
+            appointment.approved = true;
 
-        if(appointment.modified) {
-            appointment.start = appointment.modified.start;
-            appointment.end = appointment.modified.end;
-            delete appointment.modified;
-        }
+            if(appointment.modified) {
+                appointment.start = appointment.modified.start;
+                appointment.end = appointment.modified.end;
+                delete appointment.modified;
+            }
 
-        set((state) => {
+            set((state) => {
+                const appointments = [...state.appointments];
+                const i = appointments.findIndex(apt => apt.id === appointment.id);
+
+                appointments[i] = appointment;
+
+                return { appointments }
+            });
+        },
+        rescheduleAppointment: (id, start, end) => set((state) => {
             const appointments = [...state.appointments];
-            const i = appointments.findIndex(apt => apt.id === appointment.id);
+            const appointment = appointments.find(apt => apt.id === id);
 
-            appointments[i] = appointment;
+            if (appointment.start.getTime() !== start.getTime() ||
+                appointment.end.getTime() !== end.getTime()) {
+                appointment.modified = { start, end };
+            } else if (appointment.modified) {
+                delete appointment.modified;
+            }
 
             return { appointments }
-        });
-    },
-    rescheduleAppointment: (id, start, end) => set((state) => {
-        const appointments = [...state.appointments];
-        const appointment = appointments.find(apt => apt.id === id);
+        }),
+        scheduleAppointment: (appointment) => {
+            set(state => ({ appointments: [...state.appointments, appointment] }));
+        },
 
-        if (appointment.start.getTime() !== start.getTime() ||
-            appointment.end.getTime() !== end.getTime()) {
-            appointment.modified = { start, end };
-        } else if (appointment.modified) {
-            delete appointment.modified;
-        }
+        loadUserAppointments: async (userId) => {
+            let apts = await getUserAppointments(userId);
 
-        return { appointments }
-    }),
-    scheduleAppointment: (appointment) => {
-        set(state => ({ appointments: [...state.appointments, appointment] }));
-    },
+            apts = await Promise.all(apts.map(async (apt) => {
+                if (apt.owner.id === userId)
+                    apt.info = await getAppointmentInfo(apt.id);
 
-    loadUserAppointments: async (userId) => {
-        let apts = await getUserAppointments(userId);
+                return apt;
+            }));
 
-        apts = await Promise.all(apts.map(async (apt) => {
-            if (apt.owner.id === userId)
-                apt.info = await getAppointmentInfo(apt.id);
+            set((state) => {
+                const newApts = state.appointments
+                    .filter(apt => apt.owner.id !== userId)
+                    .concat(apts);
+                return { appointments: newApts }
+            })
+        },
+        loadResponsibleAppointments: async (userId) => {
+            let apts = await getResponsibleAppointments(userId);
 
-            return apt;
-        }));
+            apts = await Promise.all(apts.map(async (apt) => {
+                if (apt.responsible.id === userId)
+                    apt.info = await getAppointmentInfo(apt.id);
 
-        set((state) => {
-            const newApts = state.appointments
-                .filter(apt => apt.owner.id !== userId)
-                .concat(apts);
-            return { appointments: newApts }
-        })
-    },
-    loadResponsibleAppointments: async (userId) => {
-        let apts = await getResponsibleAppointments(userId);
+                return apt;
+            }));
 
-        apts = await Promise.all(apts.map(async (apt) => {
-            if (apt.responsible.id === userId)
-                apt.info = await getAppointmentInfo(apt.id);
-
-            return apt;
-        }));
-
-        set((state) => {
-            const newApts = state.appointments
-                .filter(apt => apt.responsible.id !== userId)
-                .concat(apts);
-            return { appointments: newApts }
-        })
-    },
+            set((state) => {
+                const newApts = state.appointments
+                    .filter(apt => apt.responsible.id !== userId)
+                    .concat(apts);
+                return { appointments: newApts }
+            })
+        },
     },
 }));
 
