@@ -4,14 +4,11 @@ import { Bars3Icon, XMarkIcon } from '@heroicons/react/24/outline';
 import { Link, Outlet, useMatch, useResolvedPath } from "react-router-dom";
 
 import { userRoutes } from "./router";
+import { classNames } from "./utils";
 
 import { logout } from "./managers/AuthManager";
 
 import logo from './logo.png';
-
-function classNames(...classes) {
-    return classes.filter(Boolean).join(' ')
-}
 
 export default function UserRoot() {
     const NavBarLink = ({ item, className }) => {

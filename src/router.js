@@ -14,18 +14,14 @@ import Register from './pages/Register';
 import Appointments from './pages/Appointments';
 import ProductsRoot from './pages/ProductsRoot';
 
-const ProtectedRoute = ({ children, loggedIn = true, redirect = "/" }) => {
+import { LoadingComponent } from './utils';
+
+function ProtectedRoute({ children, loggedIn = true, redirect = "/" }) {
     const { loaded, user } = useAuthStore(state => ({ loaded: state.loaded, user: state.user }));
 
-    if (loaded) {
-        if ((user !== null) === loggedIn) {
-            return children;
-        } else {
-            return <Navigate to={redirect} replace />;
-        }
-    } else {
-        return <h1>Loading</h1>
-    }
+    return <LoadingComponent loading={!loaded}>
+        {(user !== null) === loggedIn ? children : <Navigate to={redirect} replace />}
+    </LoadingComponent>
 }
 
 const boardingRoutes = [
