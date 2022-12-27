@@ -12,6 +12,7 @@ const locationsCollection = collection(db, 'locations');
 /// {
 ///   id: string,
 ///   name: string,
+///   responsible: FirebaseDocRef,
 /// }
 /// ```
 export async function getAllLocations() {

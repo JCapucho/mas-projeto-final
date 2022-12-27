@@ -1,9 +1,17 @@
 rules_version = '2';
 service cloud.firestore {
   match /databases/{database}/documents {
+    function userPath(uid) {
+        return /databases/(default)/documents/users/$(uid)
+    }
+
+    function getUser(uid) {
+        return get(userPath(uid))
+    }
+
     match /users/{user} {
       allow read: if resource.data.medic
-        || get(/databases/(default)/documents/users/$(request.auth.uid)).data.staff
+        || getUser(request.auth.uid).data.staff
         || request.auth.uid == user;
       allow write: if request.auth.uid == user
         && !request.resource.data.staff
@@ -11,19 +19,46 @@ service cloud.firestore {
     }
     match /products/{document=**} {
       allow read: if request.auth != null;
-      allow write: if get(/databases/(default)/documents/users/$(request.auth.uid)).data.staff;
+      allow write: if getUser(request.auth.uid).data.staff;
     }
     match /sections/{document=**} {
       allow read: if request.auth != null;
-      allow write: if get(/databases/(default)/documents/users/$(request.auth.uid)).data.staff;
+      allow write: if getUser(request.auth.uid).data.staff;
     }
-    match /appointments/{document=**} {
-      allow read: if request.auth != null;
-      allow write: if get(/databases/(default)/documents/users/$(request.auth.uid)).data.staff;
+    match /appointments/{appointment_id} {
+      allow read: if request.auth != null
+        || userPath(request.auth.uid) == request.resource.data.responsible
+        || getUser(request.auth.uid).data.staff;
+
+      allow update: if userPath(request.auth.uid) == request.resource.data.responsible
+        || getUser(request.auth.uid).data.staff;
+
+      allow create: if getUser(request.auth.uid).data.staff
+        || (
+            userPath(request.auth.uid) == request.resource.data.owner
+            && !request.resource.data.approved
+            && get(request.resource.data.responsible).data.medic
+        );
+
+      function AppointmentData() {
+        return get(/databases/(default)/documents/appointments/$(appointment_id)).data
+      }
+
+      match /private/{document=**} {
+        allow read: if userPath(request.auth.uid) == AppointmentData().owner
+            || userPath(request.auth.uid) == AppointmentData().responsible
+            || getUser(request.auth.uid).data.staff;
+
+        allow update: if userPath(request.auth.uid) == AppointmentData().responsible
+            || getUser(request.auth.uid).data.staff;
+
+        allow create: if userPath(request.auth.uid) == AppointmentData().owner
+            || getUser(request.auth.uid).data.staff;
+      }
     }
     match /locations/{document=**} {
       allow read: if request.auth != null;
-      allow write: if get(/databases/(default)/documents/users/$(request.auth.uid)).data.staff;
+      allow write: if getUser(request.auth.uid).data.staff;
     }
   }
 }

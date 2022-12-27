@@ -25,12 +25,15 @@ export default function UserAppointmentEntry({appointment}) {
             minute: '2-digit',
           });
 
-    return <div className="w-full rounded-lg shadow-lg bg-white px-6 py-4">
+    return <div className="w-full rounded-lg shadow-lg bg-white px-6 py-4 mt-5">
         <div className="flex justify-between">
             <h1>{formatDate(appointment.start)} - {formatDate(appointment.end)}</h1>
             <h1>{appointment.location}</h1>
         </div>
-        <p>{info.reason}</p>
+        <div className="flex justify-between">
+            <p>{info.reason}</p>
+            {!info.approved && <p className="text-red-700">Missing approval</p>}
+        </div>
     </div>
 }
 

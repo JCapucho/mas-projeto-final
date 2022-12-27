@@ -1,8 +1,9 @@
 import { useState, useEffect, useRef } from 'react';
-import { Link, Routes, Route, useResolvedPath, useMatch } from 'react-router-dom';
+import { Link, Routes, Route, useResolvedPath, useMatch, Navigate, useNavigate } from 'react-router-dom';
 
 import FullCalendar from '@fullcalendar/react'
 import timeGridPlugin from '@fullcalendar/timegrid'
+import interactionPlugin from '@fullcalendar/interaction';
 
 import useAuthStore from "../store/auth"
 
@@ -22,21 +23,48 @@ function classNames(...classes) {
 }
 
 function UserAppointments({appointments}) {
-    return <div className="my-5">
-        {appointments.map((appointment, i) => <UserAppointmentEntry key={i} appointment={appointment} />)}
-    </div>
+    return appointments.map((appointment, i) =>
+        <UserAppointmentEntry key={i} appointment={appointment} />
+    );
+}
+
+function SelectionLink({ to, children, className, ...rest }) {
+    const resolver = useResolvedPath(to);
+    const match = useMatch({ path: resolver.pathname, end: true });
+
+    return <Link
+        to={to}
+        className={classNames(
+            match ? "active text-gray-900 bg-gray-200" : "bg-white hover:text-gray-700 hover:bg-gray-100",
+            className,
+            "p-4 w-full text-gray-900"
+        )}
+        {...rest}
+    >
+        {children}
+    </Link>
 }
 
 export default function Appointments() {
     const userId = useAuthStore(state => state.user?.id);
+    const navigate = useNavigate();
 
     const calendarRef = useRef();
 
+    const [loading, setLoading] = useState(true);
+
+    const [newEvent, setNewEvent] = useState(null);
     const [appointments, setAppointments] = useState([]);
-    const [eventsSouce, setEventsSource] = useState(() => userEvents);
+    const [eventsSources, setEventsSources] = useState([userEvents]);
+
+    const resolver = useResolvedPath("");
+    const match = useMatch({ path: resolver.pathname, end: true });
 
     useEffect(() => {
-        getUserAppointments(userId).then(setAppointments);
+        getUserAppointments(userId).then(newApts => {
+            setAppointments(newApts);
+            setLoading(false);
+        });
     }, [userId]);
 
     useEffect(() => {
@@ -58,22 +86,34 @@ export default function Appointments() {
         });
     }
 
-    function medicEvents(id) {
-        return async (info, success, failure) => {
-            const appointments = await getMedicAppointments(id);
+    function medicChanged(medic) {
+        const eventsSource = async (info, success, failure) => {
+            const appointments = await getMedicAppointments(medic.id);
             const events = await Promise.all(appointments.map(appointmentToEvent));
 
             success(events)
-        }
+        };
+
+        const newEventSources = [eventsSource];
+
+        if (newEvent) newEventSources.push(newEvent);
+
+        setEventsSources(newEventSources);
     }
 
-    function locationEvents(location) {
-        return async (info, success, failure) => {
-            const appointments = await getLocationAppointments(location);
+    function locationChanged(location) {
+        const eventsSource = async (info, success, failure) => {
+            const appointments = await getLocationAppointments(location.name);
             const events = await Promise.all(appointments.map(appointmentToEvent));
 
             success(events)
         }
+
+        const newEventSources = [eventsSource];
+
+        if (newEvent) newEventSources.push(newEvent);
+
+        setEventsSources(newEventSources);
     }
 
     async function appointmentToEvent(appointment) {
@@ -92,65 +132,99 @@ export default function Appointments() {
         return event;
     }
 
-    const SelectionLink = ({ to, children, className, ...rest }) => {
-        const resolver = useResolvedPath(to);
-        const match = useMatch({ path: resolver.pathname, end: true });
+    function createNewSlot(info) {
+        const event = {
+            start: info.start,
+            end: info.end,
+            title: "New event"
+        };
 
-        return <Link
-            to={to}
-            className={classNames(
-                match ? "active text-gray-900 bg-gray-200" : "bg-white hover:text-gray-700 hover:bg-gray-100",
-                className,
-                "p-4 w-full text-gray-900"
-            )}
-            {...rest}
-        >
-            {children}
-        </Link>
-    };
+        setNewEvent(event);
+        setEventsSources(value => [value[0]].concat([[event]]));
+    }
+
+    function onScheduledAppointment(appointment) {
+        setAppointments(old => [...old, appointment]);
+        setEventsSources([userEvents]);
+        navigate("");
+    }
+
+
+    const userOptions = [
+        { name: 'Schedule with a medic', to: "medic"},
+        { name: 'Schedule with a clinic', to: "clinic"}
+    ];
+
+    if (appointments.length > 0) {
+        userOptions.unshift({
+            name: 'My appointments',
+            to: "",
+            onClick: () => setEventsSources([userEvents])
+        });
+    }
 
     return <div className="flex flex-col lg:flex-row p-5 gap-5 mx-auto max-w-7xl">
         <div>
             <div className="flex text-sm font-medium text-center text-gray-500 rounded-lg divide-x divide-gray-200 shadow items-stretch">
-                <SelectionLink to={""} className="rounded-l-lg" onClick={() => setEventsSource(() => userEvents)}>
-                    My appointments
-                </SelectionLink>
-                <SelectionLink to={"medic"}>
-                    Schedule with a medic
-                </SelectionLink>
-                <SelectionLink to={"clinic"} className="rounded-r-lg">
-                    Schedule with a clinic
-                </SelectionLink>
+                {userOptions.map((data, i) => 
+                    <SelectionLink
+                        key={i}
+                        to={data.to}
+                        className={classNames(
+                            i === 0 && "rounded-l-lg",
+                            i === userOptions.length && "rounded-r-lg"
+                        )}
+                        onClick={data.onClick}
+                    >
+                        {data.name}
+                    </SelectionLink>
+                )}
             </div>
 
-            <Routes>
-                <Route
-                    index
-                    element={<UserAppointments appointments={appointments} />}
-                />
-                <Route
-                    path="medic"
-                    element={<ScheduleAppointmentMedic medicSelected={(medic) => {
-                        setEventsSource(() => medicEvents(medic.id))
-                    }} />}
-                />
-                <Route path="clinic" element={<ScheduleAppointmentClinic locationSelected={(location) => {
-                        setEventsSource(() => locationEvents(location.name))
-                    }} />}
-                />
-            </Routes>
+            <div className="my-5">
+                <Routes>
+                    <Route
+                        index
+                        element={loading
+                            ? <h1>Loading</h1>
+                            : appointments.length > 0
+                            ? <UserAppointments appointments={appointments} />
+                            : <Navigate to={"medic"} replace />}
+                    />
+                    <Route
+                        path="medic"
+                        element={<ScheduleAppointmentMedic
+                            medicSelected={medicChanged}
+                            newEvent={newEvent}
+                            onScheduledAppointment={onScheduledAppointment}
+                        />}
+                    />
+                    <Route
+                        path="clinic"
+                        element={<ScheduleAppointmentClinic
+                            locationSelected={locationChanged}
+                            newEvent={newEvent}
+                            onScheduledAppointment={onScheduledAppointment}
+                        />}
+                    />
+                </Routes>
+            </div>
         </div>
         <div className="flex-grow">
             <FullCalendar
                 ref={calendarRef}
-                plugins={[timeGridPlugin]}
+                plugins={[interactionPlugin, timeGridPlugin]}
                 initialView='timeGridWeek'
                 allDaySlot={false}
                 validRange={function(nowDate) {
                     return { start: nowDate };
                 }}
-                events={eventsSouce}
+                eventSources={eventsSources}
                 eventContent={renderEventContent}
+
+                selectable={!match}
+                selectOverlap={false}
+                select={createNewSlot}
             />
         </div>
     </div>;
