@@ -7,6 +7,8 @@ import {
     approveAppointment 
 } from "../managers/AppointmentsManager";
 
+import { addLogoutHook } from "./auth";
+
 const useAppointmentsStore = createStore("AppointmentsStore", (set) => ({
     appointments: [],
 
@@ -53,9 +55,7 @@ const useAppointmentsStore = createStore("AppointmentsStore", (set) => ({
             let apts = await getUserAppointments(userId);
 
             apts = await Promise.all(apts.map(async (apt) => {
-                if (apt.owner.id === userId)
-                    apt.info = await getAppointmentInfo(apt.id);
-
+                apt.info = await getAppointmentInfo(apt.id);
                 return apt;
             }));
 
@@ -70,9 +70,7 @@ const useAppointmentsStore = createStore("AppointmentsStore", (set) => ({
             let apts = await getResponsibleAppointments(userId);
 
             apts = await Promise.all(apts.map(async (apt) => {
-                if (apt.responsible.id === userId)
-                    apt.info = await getAppointmentInfo(apt.id);
-
+                apt.info = await getAppointmentInfo(apt.id);
                 return apt;
             }));
 
@@ -85,5 +83,9 @@ const useAppointmentsStore = createStore("AppointmentsStore", (set) => ({
         },
     },
 }));
+
+addLogoutHook(async () => {
+    useAppointmentsStore.getState().actions.removeAll();
+});
 
 export default useAppointmentsStore;

@@ -1,31 +1,48 @@
 import { Fragment } from 'react';
 import { Disclosure, Menu, Transition } from '@headlessui/react';
 import { Bars3Icon, XMarkIcon } from '@heroicons/react/24/outline';
+import { ShoppingCartIcon } from '@heroicons/react/24/solid';
 import { Link, Outlet, useMatch, useResolvedPath } from "react-router-dom";
 
 import { userRoutes } from "./router";
 import { classNames } from "./utils";
 
-import { logout } from "./managers/AuthManager";
+import useCartStore from "./store/cart";
+import useAuthStore from "./store/auth";
 
 import logo from './logo.png';
 
-export default function UserRoot() {
-    const NavBarLink = ({ item, className }) => {
-        const resolver = useResolvedPath(item.path);
-        const match = useMatch({ path: resolver.pathname, end: true });
+function NavBarLink({ item, className, children }) {
+    const resolver = useResolvedPath(item.path);
+    const match = useMatch({ path: resolver.pathname, end: true });
 
-        return <Link
-            to={item.navbarTo ?? item.path}
-            className={classNames(
-                match ? 'bg-gray-900 text-white' : 'text-gray-300 hover:bg-gray-700 hover:text-white',
-                className,
-                'px-3 py-2 rounded-md text-sm font-medium',
-            )}
-        >
-            {item.name}
-        </Link>
-    };
+    return <Link
+        to={item.navbarTo ?? item.path}
+        className={classNames(
+            match ? 'bg-gray-900 text-white' : 'text-gray-300 hover:bg-gray-700 hover:text-white',
+            className,
+            'px-3 py-2 rounded-md text-sm font-medium',
+        )}
+    >
+        {children || item.name}
+    </Link>
+};
+
+function CartLink() {
+    const [cart, productsInCart] = useCartStore(state => [state.currentCart, state.productsInCart]);
+    const itemCount = productsInCart(cart);
+
+    return <NavBarLink item={{ path: "cart" }} className="relative">
+        <ShoppingCartIcon className="h-6 w-6 text-white" />
+        <span className="sr-only">Shopping cart</span>
+        {itemCount > 0 && <div className="inline-flex absolute -top-0.5 -right-0.5 justify-center items-center w-5 h-5 text-xs font-bold text-white bg-red-500 rounded-full border border-white">
+            {itemCount}
+        </div>}
+    </NavBarLink>;
+}
+
+export default function UserRoot() {
+    const authActions = useAuthStore(state => state.actions);
 
     return (
         <>
@@ -60,6 +77,7 @@ export default function UserRoot() {
                                     </div>
                                 </div>
                                 <div className="absolute inset-y-0 right-0 flex items-center pr-2 sm:static sm:inset-auto sm:ml-6 sm:pr-0">
+                                    <CartLink />
                                     {/* Profile dropdown */}
                                     <Menu as="div" className="relative ml-3">
                                         <div>
@@ -86,7 +104,7 @@ export default function UserRoot() {
                                                     {({ active }) => (
                                                         <button
                                                             className={classNames(active ? 'bg-gray-100' : '', 'block px-4 py-2 text-sm text-gray-700 w-full text-left')}
-                                                            onClick={logout}
+                                                            onClick={authActions.logout}
                                                         >
                                                             Sign out
                                                         </button>

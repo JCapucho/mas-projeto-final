@@ -25,6 +25,11 @@ service cloud.firestore {
         && !request.resource.data.staff
         && !request.resource.data.medic
         && request.resource.data.email == request.auth.token.email;
+
+      match /private/{document=**} {
+        allow read, write: if request.auth.uid == user
+            || getUser(request.auth.uid).data.staff;
+      }
     }
 
     match /products/{document=**} {
@@ -75,6 +80,39 @@ service cloud.firestore {
     match /locations/{document=**} {
       allow read: if request.auth != null;
       allow write: if getUser(request.auth.uid).data.staff;
+    }
+
+    match /carts/{document=**} {
+      allow read: if userPath(request.auth.uid) == resource.data.owner
+        || getUser(request.auth.uid).data.staff;
+
+      function updateCheckFields(isStaff, data, changedKeys) {
+        return (isStaff && !changedKeys.hasAny(["owner"]) || !changedKeys.hasAny(["owner", "lastDate"]))
+            && (!("lastDate" in changedKeys) || data.lastDate > data.nextDate)
+            && (!("nextDate" in changedKeys) || data.nextDate > request.time);
+      }
+
+      allow update: if (
+            userPath(request.auth.uid) == request.resource.data.owner
+            && updateCheckFields(
+                false,
+                request.resource.data,
+                request.resource.data.diff(resource.data).affectedKeys()
+            )
+        ) || (
+            getUser(request.auth.uid).data.staff
+            && updateCheckFields(
+                true,
+                request.resource.data,
+                request.resource.data.diff(resource.data).affectedKeys()
+            )
+        );
+
+      allow create: if (userPath(request.auth.uid) == request.resource.data.owner || getUser(request.auth.uid).data.staff)
+        && (
+            !request.resource.data.keys().hasAny(["nextDate"])
+            || request.time < request.resource.data.nextDate
+        );
     }
   }
 }

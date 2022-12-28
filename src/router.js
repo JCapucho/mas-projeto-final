@@ -13,6 +13,7 @@ import Register from './pages/Register';
 
 import Appointments from './pages/Appointments';
 import ProductsRoot from './pages/ProductsRoot';
+import Cart from './pages/Cart';
 
 import { LoadingComponent } from './utils';
 
@@ -80,6 +81,10 @@ export default createBrowserRouter([
             {
                 index: true,
                 element: <></>,
+            },
+            {
+                path: "cart",
+                element: <Cart />,
             }
         ].concat(userRoutes)
     },

@@ -10,44 +10,24 @@ import GenericButton from "../components/GenericButton";
 import NewSectionForm from "../components/NewSectionForm";
 import NewProductForm from "../components/NewProductForm";
 
-function ProductCard({ name, photo, price, section, children }) {
-    return (
-        <div className="self-stretch rounded-lg shadow-lg bg-white p-6 w-96 flex flex-col justify-between">
-            {children}
-            <img className="rounded-t-lg mx-auto" style={{ maxHeight: "300px", maxWidth: "300px" }} src={photo} alt={name} />
-            <div className="flex justify-center items-center mt-4 flex-col">
-                <p className="text-gray-900 text-lg text-center mb-2 mt-4">{name}</p>
-                <h5 className="text-gray-900 text-xl text-center font-bold mb-2">{price.toFixed(2)}€</h5>
-                <button type="button" className=" px-4 py-2.5 bg-red-500 text-xs leading-tight uppercase rounded shadow-md hover:bg-red-600 hover:shadow-lg focus:bg-red-600 focus:shadow-lg focus:outline-none focus:ring-0 active:bg-red-700 active:shadow-lg transition duration-150 ease-in-out flex items-center justify-between">
-                    Add to cart
-                    <ShoppingCartIcon className="h-6 w-6 ml-3" />
-                </button>
-            </div>
-        </div>
-    );
-}
+import ProductCard from "../components/ProductCard";
+import GenericCard from "../components/GenericCard";
 
-function SectionCard({ id, name, photo }) {
-    return (
-        <div className="self-stretch rounded-lg shadow-lg bg-white p-6 w-96 flex flex-col justify-between">
-            <img className="rounded-t-lg mx-auto" style={{ maxHeight: "300px", maxWidth: "300px" }} src={photo} alt={name} />
-            <div className="flex justify-center items-center mt-4 flex-col">
-                <p className="text-gray-900 text-lg text-center mb-2 mt-4">{name}</p>
-                <Link
-                    to={`section/${id}`}
-                    className=" px-4 py-2.5 bg-red-500 text-xs leading-tight uppercase rounded shadow-md hover:bg-red-600 hover:shadow-lg focus:bg-red-600 focus:shadow-lg focus:outline-none focus:ring-0 active:bg-red-700 active:shadow-lg transition duration-150 ease-in-out"
-                >
-                    View section
-                </Link>
-            </div>
-        </div>
-    );
+function SectionCard({ section }) {
+    return <GenericCard img={section.photo} name={section.name}>
+        <Link
+            to={`section/${section.id}`}
+            className=" px-4 py-2.5 bg-red-500 text-xs leading-tight uppercase rounded shadow-md hover:bg-red-600 hover:shadow-lg focus:bg-red-600 focus:shadow-lg focus:outline-none focus:ring-0 active:bg-red-700 active:shadow-lg transition duration-150 ease-in-out"
+        >
+            View section
+        </Link>
+    </GenericCard>
 }
 
 function SectionsRoute({ sections, isStaff }) {
     return <>
         <div className="flex flex-wrap justify-center items-center gap-5 m-5">
-            {sections.map((section, i) => <SectionCard key={i} isStaff={isStaff} {...section} />)}
+            {sections.map((section, i) => <SectionCard key={i} isStaff={isStaff} section={section} />)}
         </div>
         <div className="flex justify-center mt-4">
             <Link
@@ -102,7 +82,7 @@ function ProductsRoute({ isStaff, sections }) {
         </div>
         <div className="flex flex-wrap justify-center items-center gap-5 m-5">
             {products.map((product, i) => 
-                <ProductCard key={i} isStaff={isStaff} {...product}>
+                <ProductCard key={i} product={product}>
                     {isStaff && <div className="flex justify-end gap-2">
                         <button
                             className="bg-blue-500 hover:bg-blue-700 text-white font-bold p-2 rounded"
