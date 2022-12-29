@@ -20,6 +20,7 @@ const productsCollection = collection(db, 'products');
 /// An object with the following shape:
 /// ```
 /// {
+///   id: string,
 ///   name: string,
 ///   photo: string,
 /// }
@@ -36,7 +37,56 @@ export async function addSection(sectionData, image) {
     sectionData.photo = imageUrl;
     await setDoc(sectionRef, sectionData);
 
+    sectionData.id = section_id;
+
     return sectionData;
+}
+
+/// Deletes a section from the database
+export async function deleteSection(id) {
+    const sectionRef = doc(sectionsCollection, id);
+
+    return await deleteDoc(sectionRef);
+}
+
+/// Edits a section in the database, `image` must be a `Blob`, `File` or `null`,
+/// `sectionData` must be an object with the following shape:
+/// ```
+/// {
+///   name?: string,
+/// }
+/// ```
+///
+/// # Returns
+///
+/// An object with the following shape:
+/// ```
+/// {
+///   id: string,
+///   name: string,
+///   photo: string,
+/// }
+/// ```
+export async function editSection(id, sectionData, image) {
+    const sectionRef = doc(sectionsCollection, id);
+
+    if (image !== null) {
+        const imageRef = ref(storage, `sections/${id}`);
+
+        await uploadBytes(imageRef, image);
+        const imageUrl = await getDownloadURL(imageRef);
+
+        sectionData.photo = imageUrl;
+    }
+
+    await updateDoc(sectionRef, sectionData);
+
+    const snap = await getDoc(sectionRef);
+    const data = snap.data();
+
+    data.id = id;
+
+    return data;
 }
 
 /// Adds a product to the database, `image` must be a `Blob` or a `File`,

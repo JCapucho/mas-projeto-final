@@ -2,7 +2,8 @@ import { useState, useEffect } from 'react';
 import { Combobox } from '@headlessui/react'
 import { CheckIcon, ChevronUpDownIcon } from '@heroicons/react/24/solid';
 
-import { addProduct, editProduct } from "../managers/ProductsManager";
+import useProductsStore from "../store/products";
+import useSectionsStore from "../store/sections";
 
 import GenericDialog from "./GenericDialog";
 import GenericButton from "./GenericButton";
@@ -76,7 +77,13 @@ function SectionPicker({ sections, value, onChange, required }) {
     </Combobox>;
 }
 
-export default function ProductForm({ product = null, sections, onNewProduct, open, onClose }) {
+export default function ProductForm({ product = null, open, onClose }) {
+    const [sections, loadSections] = useSectionsStore(state => [
+        state.sections,
+        state.actions.loadSections
+    ]);
+    const actions = useProductsStore(state => state.actions);
+
     const [image, setImage] = useState(null);
     const [name, setName] = useState(product?.name || "");
     const [section, setSection] = useState(sections.find((item) => item.id === product?.sectionId) || null);
@@ -87,6 +94,11 @@ export default function ProductForm({ product = null, sections, onNewProduct, op
         setSection(sections.find((item) => item.id === product?.sectionId) || null);
         setPrice(product?.price || 0);
     }, [product, sections]);
+
+    useEffect(() => {
+        loadSections()
+    }, [loadSections]);
+
 
     const hasSections = sections !== 0;
     const newForm = product === null;
@@ -100,10 +112,8 @@ export default function ProductForm({ product = null, sections, onNewProduct, op
         event.preventDefault();
         const priceFloat = parseFloat(price);
 
-        let addedProduct;
-
         if (newForm) {
-            addedProduct = await addProduct({
+            await actions.addProduct({
                 name,
                 price: priceFloat,
                 sectionId: section.id
@@ -115,13 +125,10 @@ export default function ProductForm({ product = null, sections, onNewProduct, op
             if(priceFloat !== product.price) updatedData.price = priceFloat;
             if(section?.id !== product.sectionId) updatedData.sectionId = section?.id;
 
-            addedProduct = await editProduct(product.id, updatedData, image);
+            await actions.editProduct(product.id, updatedData, image);
         }
 
-        if(onNewProduct) {
-            onNewProduct(addedProduct);
-            onClose();
-        }
+        onClose();
     }
 
     return (

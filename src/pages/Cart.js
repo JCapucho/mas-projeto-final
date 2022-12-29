@@ -1,12 +1,10 @@
-import { useState, useEffect } from 'react';
+import { useEffect } from 'react';
 import { TrashIcon } from '@heroicons/react/24/solid';
 
 import useCartStore from "../store/cart"
 import useProductsStore from "../store/products"
 
-import { LoadingComponent } from "../utils"
 import { CounterInput } from "../components/FormInput"
-import GenericButton from "../components/GenericButton"
 
 function CartItem({ product }) {
     const [quantity, actions] = useCartStore(state => [
@@ -49,7 +47,7 @@ function CurrentCart() {
     useEffect(() => {
         const ids = Object.keys(currentCart.products || {});
         actions.loadProducts(ids);
-    }, [currentCart.products]);
+    }, [currentCart.products, actions]);
 
     let ProductsList = <>
         <h1 className="text-center">You don't have any products</h1>
