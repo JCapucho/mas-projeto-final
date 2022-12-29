@@ -4,6 +4,19 @@ import { getUserCarts, getUserCartDraft, saveUserCartDraft } from "../managers/C
 
 import useAuthStore, { addLogoutHook } from "./auth";
 
+function createWriteBackController(callback, debounce = 500) {
+    let writeBackTimeoutId = null;
+
+    function change() {
+        clearTimeout(writeBackTimeoutId);
+        writeBackTimeoutId = setTimeout(callback, debounce);
+    }
+
+    return { change };
+}
+
+const writeback = createWriteBackController(saveDraft);
+
 const useCartStore = createStore("CartsStore", (set, get) => ({
     dirty: false,
     currentCart: {},
@@ -13,13 +26,15 @@ const useCartStore = createStore("CartsStore", (set, get) => ({
         Object.values(cart.products || {}).reduce((accum, value) => accum + value, 0),
 
     actions: {
-        addProduct: async (product) => set(state => {
+        addProduct: (product) => set(state => {
             const cartProducts = { ...state.currentCart.products };
 
             if(!cartProducts[product])
                 cartProducts[product] = 0;
 
             cartProducts[product] += 1;
+
+            writeback.change();
 
             return {
                 dirty: true,
@@ -31,6 +46,8 @@ const useCartStore = createStore("CartsStore", (set, get) => ({
 
             delete cartProducts[product];
 
+            writeback.change();
+
             return {
                 dirty: true,
                 currentCart: { ...state.currentCart, products: cartProducts }
@@ -40,6 +57,8 @@ const useCartStore = createStore("CartsStore", (set, get) => ({
             const cartProducts = { ...state.currentCart.products };
 
             cartProducts[product] = quantity;
+
+            writeback.change();
 
             return {
                 dirty: true,
