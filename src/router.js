@@ -5,6 +5,7 @@ import {
 } from "react-router-dom";
 
 import useAuthStore from "./store/auth"
+import useCartStore from "./store/cart"
 
 import GuestRoot from './GuestRoot';
 import UserRoot from './UserRoot';
@@ -104,6 +105,24 @@ export default createBrowserRouter([
                         path: "paymentSucess",
                         element: <ProtectedRoute><PaymentSuccessful /></ProtectedRoute>,
                         action: async ({ request }) => {
+                            const loadedAuth = new Promise(resolve => {
+                                const state = useAuthStore.getState();
+                                if (state.loaded)
+                                    return resolve(state.user);
+
+                                let unsub;
+                                unsub = useAuthStore.subscribe(state => {
+                                    if(state.loaded) {
+                                        unsub();
+                                        resolve(state.user);
+                                    }
+                                });
+                            });
+
+                            const user = await loadedAuth;
+
+                            await useCartStore.getState().actions.storeDraft(user.id);
+
                             const formData = await request.formData();
                             return Object.fromEntries(formData);
                         }

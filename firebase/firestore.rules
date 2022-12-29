@@ -87,7 +87,8 @@ service cloud.firestore {
         || getUser(request.auth.uid).data.staff;
 
       function updateCheckFields(isStaff, data, changedKeys) {
-        return (isStaff && !changedKeys.hasAny(["owner"]) || !changedKeys.hasAny(["owner", "lastDate"]))
+        return isStaff
+            && !changedKeys.hasAny(["owner"])
             && (!("lastDate" in changedKeys) || data.lastDate > data.nextDate)
             && (!("nextDate" in changedKeys) || data.nextDate > request.time);
       }

@@ -1,4 +1,4 @@
-import { collection, doc, getDocs, getDoc, setDoc, query, where } from "firebase/firestore";
+import { collection, doc, getDocs, getDoc, setDoc, query, where, runTransaction } from "firebase/firestore";
 import { db } from "../firebase/base";
 
 import { usersCollection } from "./UserManager";
@@ -29,7 +29,7 @@ export async function getUserCarts(userId) {
         const cart = doc.data();
         cart.id = doc.id;
         cart.lastDate = cart.lastDate.toDate();
-        cart.nextDate = cart.nextDate.toDate();
+        cart.nextDate = cart.nextDate?.toDate();
         carts.push(cart);
     });
 
@@ -79,5 +79,22 @@ export async function getUserCartDraft(userId) {
 export async function saveUserCartDraft(userId, cart) {
     const cartRef = doc(usersCollection, userId, "private", "cart");
     await setDoc(cartRef, cart);
+}
+
+/// Saves the user's draft card as a permanent cart
+export async function storeDraftCart(userId) {
+    const cartRef = doc(cartsCollection);
+    const draftCartRef = doc(usersCollection, userId, "private", "cart");
+    return await runTransaction(db, async (transaction) => {
+        const cartDoc = await transaction.get(draftCartRef);
+        const data = cartDoc.data();
+
+        data.lastDate = new Date();
+
+        transaction.set(cartRef, data);
+        transaction.delete(draftCartRef);
+
+        return data;
+    });
 }
 

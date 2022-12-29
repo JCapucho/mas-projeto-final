@@ -1,6 +1,6 @@
 import { createStore } from "./utils";
 
-import { getUserCarts, getUserCartDraft, saveUserCartDraft } from "../managers/CartManager";
+import { getUserCarts, getUserCartDraft, saveUserCartDraft, storeDraftCart } from "../managers/CartManager";
 
 import useAuthStore, { addLogoutHook } from "./auth";
 
@@ -82,6 +82,20 @@ const useCartStore = createStore("CartsStore", (set, get) => ({
 
             await saveUserCartDraft(user.id, state.currentCart);
             set({ dirty: false })
+        },
+        storeDraft: async (userId) => {
+            const state = get();
+
+            if (state.dirty)
+                await saveUserCartDraft(userId, state.currentCart);
+
+            const cart = await storeDraftCart(userId);
+
+            set(state => ({
+                dirty: false,
+                currentCart: {},
+                carts: [...state.carts, cart]
+            }));
         }
     },
 }));
