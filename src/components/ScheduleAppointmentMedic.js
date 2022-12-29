@@ -1,15 +1,15 @@
 import { useState, useEffect } from 'react';
 
-import { RadioGroup } from '@headlessui/react'
-import { CheckIcon } from '@heroicons/react/20/solid'
-
 import useAuthStore from "../store/auth"
 
 import { scheduleByMedic } from "../managers/AppointmentsManager";
 import { getAllMedics } from "../managers/UserManager";
 
 import { FormTextarea, FormCheckbox } from "./FormInput";
+import RadioInput from "./RadioInput";
 import GenericButton from "./GenericButton";
+
+import { LoadingComponent } from "../utils";
 
 export default function ScheduleAppointmentMedic({ medicSelected, newEvent, onScheduledAppointment }) {
     const userId = useAuthStore(state => state.user?.id);
@@ -19,10 +19,14 @@ export default function ScheduleAppointmentMedic({ medicSelected, newEvent, onSc
     const [selected, setSelected] = useState(null);
     const [medics, setMedics] = useState([]);
 
+    const [loading, setLoading] = useState(true);
     const [banner, setBanner] = useState(null);
 
     useEffect(() => {
-        getAllMedics().then(setMedics);
+        getAllMedics().then(medics => {
+            setMedics(medics);
+            setLoading(false);
+        });
     }, []);
 
     function onChange(medic) {
@@ -64,61 +68,17 @@ export default function ScheduleAppointmentMedic({ medicSelected, newEvent, onSc
             </div>
         }
 
-        <RadioGroup value={selected} onChange={onChange}>
-            <RadioGroup.Label className="sr-only">Medic</RadioGroup.Label>
-            <div className="space-y-2">
-                {medics.map((medic) => (
-                    <RadioGroup.Option
-                        key={medic.id}
-                        value={medic}
-                        className={({ active, checked }) =>
-                            `${
-                                active
-                                ? 'ring-2 ring-white ring-opacity-60 ring-offset-2 ring-offset-sky-300'
-                                : ''
-                            }
-                            ${
-                                checked ? 'bg-sky-900 bg-opacity-75 text-white' : 'bg-white'
-                            }
-                            relative flex cursor-pointer rounded-lg px-5 py-4 shadow-md focus:outline-none`
-                        }
-                    >
-                        {({ active, checked }) => (
-                        <>
-                            <div className="flex w-full items-center justify-between">
-                                <div className="flex items-center">
-                                    <div className="text-sm">
-                                        <RadioGroup.Label
-                                            as="p"
-                                            className={`font-medium  ${
-                                              checked ? 'text-white' : 'text-gray-900'
-                                            }`}
-                                        >
-                                            Dr. {medic.lastName}
-                                        </RadioGroup.Label>
-                                        <RadioGroup.Description
-                                            as="span"
-                                            className={`inline ${
-                                              checked ? 'text-sky-100' : 'text-gray-500'
-                                            }`}
-                                        >
-                                            {medic.speciality}
-                                        </RadioGroup.Description>
-                                    </div>
-                                </div>
-                                {checked && (
-                                    <div className="shrink-0 text-white">
-                                        <CheckIcon className="h-6 w-6" />
-                                    </div>
-                                )}
-                            </div>
-                        </>
-                    )}
-                    </RadioGroup.Option>
-                ))}
-            </div>
-        </RadioGroup>
-
+        <LoadingComponent loading={loading}>
+            <RadioInput
+                label={"Medic"}
+                selected={selected}
+                onChange={onChange}
+                options={medics}
+                render={medic => ({
+                    label: `Dr. ${medic.lastName}`,
+                    description: `${medic.speciality}`
+                })} />
+        </LoadingComponent>
         <FormCheckbox value={remote} changed={setRemote}>
             Remote appointment
         </FormCheckbox>

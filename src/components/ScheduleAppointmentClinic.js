@@ -1,15 +1,15 @@
 import { useState, useEffect } from 'react';
 
-import { RadioGroup } from '@headlessui/react'
-import { CheckIcon } from '@heroicons/react/20/solid'
-
 import useAuthStore from "../store/auth"
 
 import { scheduleByClinic } from "../managers/AppointmentsManager";
 import { getAllLocations } from "../managers/LocationsManager";
 
 import { FormTextarea } from "./FormInput";
+import RadioInput from "./RadioInput";
 import GenericButton from "./GenericButton";
+
+import { LoadingComponent } from "../utils";
 
 export default function ScheduleAppointmentClinic({ locationSelected, newEvent, onScheduledAppointment }) {
     const userId = useAuthStore(state => state.user?.id);
@@ -18,10 +18,14 @@ export default function ScheduleAppointmentClinic({ locationSelected, newEvent, 
     const [selected, setSelected] = useState(null);
     const [locations, setLocations] = useState([]);
 
+    const [loading, setLoading] = useState(true);
     const [banner, setBanner] = useState(null);
 
     useEffect(() => {
-        getAllLocations().then(setLocations);
+        getAllLocations().then(locations => {
+            setLocations(locations);
+            setLoading(false);
+        });
     }, []);
 
     function onChange(location) {
@@ -57,53 +61,17 @@ export default function ScheduleAppointmentClinic({ locationSelected, newEvent, 
             </div>
         }
 
-        <RadioGroup value={selected} onChange={onChange} className="mb-5">
-            <RadioGroup.Label className="sr-only">Medic</RadioGroup.Label>
-            <div className="space-y-2">
-                {locations.map((location) => (
-                    <RadioGroup.Option
-                        key={location.id}
-                        value={location}
-                        className={({ active, checked }) =>
-                            `${
-                                active
-                                ? 'ring-2 ring-white ring-opacity-60 ring-offset-2 ring-offset-sky-300'
-                                : ''
-                            }
-                            ${
-                                checked ? 'bg-sky-900 bg-opacity-75 text-white' : 'bg-white'
-                            }
-                            relative flex cursor-pointer rounded-lg px-5 py-4 shadow-md focus:outline-none`
-                        }
-                    >
-                        {({ active, checked }) => (
-                        <>
-                            <div className="flex w-full items-center justify-between">
-                                <div className="flex items-center">
-                                    <div className="text-sm">
-                                        <RadioGroup.Label
-                                            as="p"
-                                            className={`font-medium  ${
-                                              checked ? 'text-white' : 'text-gray-900'
-                                            }`}
-                                        >
-                                            {location.name}
-                                        </RadioGroup.Label>
-                                    </div>
-                                </div>
-                                {checked && (
-                                    <div className="shrink-0 text-white">
-                                        <CheckIcon className="h-6 w-6" />
-                                    </div>
-                                )}
-                            </div>
-                        </>
-                    )}
-                    </RadioGroup.Option>
-                ))}
-            </div>
-        </RadioGroup>
-
+        <LoadingComponent loading={loading}>
+            <RadioInput
+                className="mb-5"
+                label={"Clinic"}
+                selected={selected}
+                onChange={onChange}
+                options={locations}
+                render={location => ({
+                    label: location.name,
+                })} />
+        </LoadingComponent>
         <FormTextarea
             rows="3"
             value={reason}

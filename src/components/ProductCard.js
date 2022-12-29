@@ -1,17 +1,36 @@
-import { ShoppingCartIcon } from '@heroicons/react/24/solid';
+import { ShoppingCartIcon, TrashIcon, PencilSquareIcon } from '@heroicons/react/24/solid';
 
+import useAuthStore from "../store/auth";
 import useCartStore from "../store/cart";
+import useProductStore from "../store/products";
 
 import GenericCard from "./GenericCard";
 
-export default function ProductCard({ product, children }) {
+export default function ProductCard({ product, edit }) {
+    const isStaff = useAuthStore(state => state.user?.staff === true);
+    const deleteProduct = useProductStore(state => state.actions.deleteProduct);
     const cartActions = useCartStore(state => state.actions);
 
     function addToCart() {
         cartActions.addProduct(product.id);
     }
 
-    return <GenericCard img={product.photo} name={product.name} header={children}>
+    return <GenericCard img={product.photo} name={product.name} header={
+        isStaff && <div className="flex justify-end gap-2">
+            <button
+                className="bg-blue-500 hover:bg-blue-700 text-white font-bold p-2 rounded"
+                onClick={edit}
+            >
+                <PencilSquareIcon className="h-6 w-6" />
+            </button>
+            <button
+                className="bg-red-500 hover:bg-blue-700 text-white font-bold p-2 rounded"
+                onClick={() => deleteProduct(product.id)}
+            >
+                <TrashIcon className="h-6 w-6" />
+            </button>
+        </div>
+    }>
         <h5 className="text-gray-900 text-xl text-center font-bold mb-2">{product.price.toFixed(2)}€</h5>
         <button 
             type="button"
