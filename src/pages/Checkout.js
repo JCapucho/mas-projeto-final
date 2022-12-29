@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react';
-import { Link, useSubmit } from "react-router-dom";
+import { Link, useSubmit, Navigate } from "react-router-dom";
 import { ArrowUturnLeftIcon } from '@heroicons/react/24/solid';
 import { Tab } from '@headlessui/react'
 import { useForm, FormProvider, useFormContext, Controller } from "react-hook-form";
@@ -220,7 +220,10 @@ export default function Checkout() {
     const formMethods = useForm({
         defaultValues: { shipping: "home" }
     });
-    const cartProducts = useCartStore(state => state.currentCart.products);
+    const [loaded, cartProducts] = useCartStore(state => [
+        state.loaded,
+        state.currentCart.products
+    ]);
     const products = useProductsStore(state => state.products);
 
     const [fees, setFees] = useState(5);
@@ -239,6 +242,9 @@ export default function Checkout() {
 
         submit(formData, { method: "post", action: "/dashboard/paymentSucess" });
     }
+
+    if (loaded && (!cartProducts || Object.keys(cartProducts).length === 0))
+        return <Navigate to={"/dashboard"} replace />
 
     return (
         <div className="h-screen grid grid-cols-1 md:grid-cols-2">

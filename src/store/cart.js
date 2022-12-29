@@ -18,6 +18,7 @@ function createWriteBackController(callback, debounce = 500) {
 const writeback = createWriteBackController(saveDraft);
 
 const useCartStore = createStore("CartsStore", (set, get) => ({
+    loaded: false,
     dirty: false,
     currentCart: {},
     carts: [],
@@ -72,9 +73,14 @@ const useCartStore = createStore("CartsStore", (set, get) => ({
                 getUserCartDraft(userId),
             ]);
 
-            set({ dirty: false, currentCart: draft, carts });
+            set({ loaded: true, dirty: false, currentCart: draft, carts });
         },
-        removeAll: () => set({ dirty: false, currentCart: {}, carts: [] }),
+        removeAll: () => set({ 
+            loaded: false,
+            dirty: false,
+            currentCart: {},
+            carts: []
+        }),
         saveDraft: async (user) => {
             const state = get();
 
