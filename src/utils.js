@@ -2,6 +2,12 @@ export function classNames(...classes) {
     return classes.filter(Boolean).join(' ')
 }
 
+export function* chunks(arr, n) {
+  for (let i = 0; i < arr.length; i += n) {
+    yield arr.slice(i, i + n);
+  }
+}
+
 export function LoadingComponent({ children, loading }) {
     const LoadingIcon = () => <div role="status" className="mx-auto">
         <svg aria-hidden="true" className="mr-2 w-16 h-16 text-gray-200 animate-spin fill-blue-600" viewBox="0 0 100 101" fill="none" xmlns="http://www.w3.org/2000/svg">
@@ -13,7 +19,7 @@ export function LoadingComponent({ children, loading }) {
 
     if (loading) {
         return <div className="flex flex-col p-10 justify-center gap-10">
-            <h1 className="text-center text-xl">Os nossos cães estão a ir buscar os dados, por favor aguarde</h1>
+            <h1 className="text-center text-xl">Our dogs are fetching your data, please wait</h1>
             <LoadingIcon />
         </div>;
     } else {
@@ -21,8 +27,22 @@ export function LoadingComponent({ children, loading }) {
     }
 }
 
-export function* chunks(arr, n) {
-  for (let i = 0; i < arr.length; i += n) {
-    yield arr.slice(i, i + n);
-  }
+export function NotFound() {
+    return <div className="flex flex-col p-10 justify-center gap-10">
+        <h1 className="text-center text-4xl font-bold">404 Page not found</h1>
+        <div className="mx-auto">
+            <img src={"https://media.tenor.com/dZH0Vr7h9k8AAAAd/funny-animals-dogs.gif"} alt={"Confused dog"} />
+        </div>
+        <h1 className="text-center text-xl">Even the dog is confused</h1>
+    </div>;
+}
+
+export function ErrorPage() {
+    return <div className="flex flex-col p-10 justify-center gap-10">
+        <h1 className="text-center text-4xl font-bold">Something went <u>very</u> wrong</h1>
+        <div className="mx-auto">
+            <img src={"https://media.tenor.com/MYZgsN2TDJAAAAAC/this-is.gif"} alt={"Confused dog"} />
+        </div>
+        <h1 className="text-center text-xl">Don't worry, the dog says it's fine</h1>
+    </div>;
 }

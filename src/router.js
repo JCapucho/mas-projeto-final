@@ -1,4 +1,4 @@
-import { createBrowserRouter, Navigate } from "react-router-dom";
+import { createBrowserRouter, Navigate, Outlet } from "react-router-dom";
 
 import useAuthStore from "./store/auth"
 
@@ -15,7 +15,7 @@ import Appointments from './pages/Appointments';
 import ProductsRoot from './pages/ProductsRoot';
 import Cart from './pages/Cart';
 
-import { LoadingComponent } from './utils';
+import { LoadingComponent, NotFound, ErrorPage } from './utils';
 
 function ProtectedRoute({ children, loggedIn = true, redirect = "/" }) {
     const { loaded, user } = useAuthStore(state => ({ loaded: state.loaded, user: state.user }));
@@ -58,34 +58,48 @@ export { boardingRoutes, userRoutes };
 export default createBrowserRouter([
     {
         path: "/",
-        element: <GuestRoot />,
+        element: <Outlet />,
+        errorElement: <ErrorPage />,
         children: [
+            // Guest Routes
             {
-                index: true,
-                element: <Landing />,
-            }
-        ].concat(boardingRoutes)
-    },
-    {
-        path: "/login",
-        element: <ProtectedRoute loggedIn={false} redirect={"/dashboard"}><Login /></ProtectedRoute>,
-    },
-    {
-        path: "/register",
-        element: <ProtectedRoute loggedIn={false} redirect={"/dashboard"}><Register /></ProtectedRoute>,
-    },
-    {
-        path: "/dashboard",
-        element: <ProtectedRoute><UserRoot /></ProtectedRoute>,
-        children: [
+                path: "",
+                element: <GuestRoot />,
+                children: [
+                    {
+                        index: true,
+                        element: <Landing />,
+                    }
+                ].concat(boardingRoutes)
+            },
+            // Authentication routes
             {
-                index: true,
-                element: <></>,
+                path: "/login",
+                element: <ProtectedRoute loggedIn={false} redirect={"/dashboard"}><Login /></ProtectedRoute>,
             },
             {
-                path: "cart",
-                element: <Cart />,
-            }
-        ].concat(userRoutes)
+                path: "/register",
+                element: <ProtectedRoute loggedIn={false} redirect={"/dashboard"}><Register /></ProtectedRoute>,
+            },
+            // Logged in routes
+            {
+                path: "/dashboard",
+                element: <ProtectedRoute><UserRoot /></ProtectedRoute>,
+                children: [
+                    {
+                        index: true,
+                        element: <></>,
+                    },
+                    {
+                        path: "cart",
+                        element: <Cart />,
+                    }
+                ].concat(userRoutes)
+            },
+        ]
     },
+    {
+        path: "*",
+        element: <NotFound />
+    }
 ]);
