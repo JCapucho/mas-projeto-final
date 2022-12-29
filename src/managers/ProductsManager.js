@@ -1,6 +1,8 @@
 import { ref, uploadBytes, getDownloadURL } from "firebase/storage";
-import { collection, doc, updateDoc, setDoc, getDocs, getDoc, deleteDoc, query, where } from "firebase/firestore";
+import { collection, doc, updateDoc, setDoc, getDocs, getDoc, deleteDoc, query, where, documentId } from "firebase/firestore";
 import { db, storage } from "../firebase/base";
+
+import { chunks } from "../utils";
 
 const sectionsCollection = collection(db, 'sections');
 const productsCollection = collection(db, 'products');
@@ -210,6 +212,43 @@ export async function getProductsInSection(id) {
         product.id = doc.id;
         products.push(product);
     });
+
+    return products;
+}
+
+/// Retrieves a list of products by id
+///
+/// # Returns
+///
+/// An Array of objects with the following shape:
+/// ```
+/// {
+///   id: string,
+///   name: string,
+///   price: float,
+///   section: FirebaseDocRef,
+///   sectionId: string,
+///   photo: string,
+/// }
+/// ```
+export async function getProductsById(ids) {
+    const products = [];
+    const promises = [];
+
+    for (const chunk of chunks(ids, 10)) {
+        const q = query(productsCollection, where(documentId(), "in", chunk));
+        const promise = getDocs(q).then(productsQuery => {
+            productsQuery.forEach((doc) => {
+                const product = doc.data();
+                product.id = doc.id;
+                products.push(product);
+            });
+        });
+
+        promises.push(promise);
+    }
+
+    await Promise.all(promises);
 
     return products;
 }

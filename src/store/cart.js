@@ -26,6 +26,27 @@ const useCartStore = createStore("CartsStore", (set, get) => ({
                 currentCart: { ...state.currentCart, products: cartProducts }
             };
         }),
+        removeProduct: (product) => set(state => {
+            const cartProducts = { ...state.currentCart.products };
+
+            delete cartProducts[product];
+
+            return {
+                dirty: true,
+                currentCart: { ...state.currentCart, products: cartProducts }
+            };
+        }),
+        changeQuantity: (product, quantity) => set(state => {
+            const cartProducts = { ...state.currentCart.products };
+
+            cartProducts[product] = quantity;
+
+            return {
+                dirty: true,
+                currentCart: { ...state.currentCart, products: cartProducts }
+            };
+        }),
+
         loadUserCarts: async (userId) => {
             const [carts, draft] = await Promise.all([
                 getUserCarts(userId),

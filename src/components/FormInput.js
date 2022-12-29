@@ -55,3 +55,44 @@ export function FormCheckbox({ children, changed, className, ...rest }) {
         <FormLabel id={id}>{children}</FormLabel>
     </div>;
 }
+
+export function CounterInput({changed, value, min, max, ...rest}) {
+    function onChange(value) {
+        if (min !== undefined)
+            value = Math.max(min, value);
+
+        if (max !== undefined)
+            value = Math.min(max, value);
+
+        changed(value);
+    }
+
+    return <div className="h-10 w-32">
+        <div className="flex w-full h-10 rounded border border-gray-300 shadow-sm focus-within:border-indigo-500">
+            <button
+                className="hover:bg-gray-300 h-full w-20 border-r"
+                onClick={() => onChange(value - 1)}
+                disabled={min !== undefined && value <= min}
+            >
+                <span className="m-auto text-2xl font-thin">−</span>
+            </button>
+            <input 
+                type="number"
+                className="w-full text-center border-0 sm:text-sm appearance-none focus:ring-0 focus:ring-offset-0"
+                style={{ MozAppearance: "textfield" }}
+                onChange={(event) => onChange(event.target.value)}
+                value={value}
+                min={min}
+                max={max}
+                {...rest}
+            />
+            <button
+                className="hover:bg-gray-300 h-full w-20 border-l"
+                onClick={() => onChange(value + 1)}
+                disabled={max !== undefined && value >= max}
+            >
+                <span className="m-auto text-2xl font-thin">+</span>
+            </button>
+        </div>
+    </div>;
+}
