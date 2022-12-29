@@ -6,6 +6,8 @@ import { EmailAlreadyInUse } from "../firebase/auth";
 import { register } from "../managers/AuthManager";
 import useAuthStore from "../store/auth";
 
+import FormInput from "../components/FormInput";
+
 import logo from '../logo.png';
 
 export default function Register() {
@@ -64,78 +66,63 @@ export default function Register() {
                     <input type="hidden" name="remember" defaultValue="true" />
                     <div className="grid grid-cols-6 gap-x-6 gap-y-2">
                         <div className="col-span-6 sm:col-span-3">
-                            <label htmlFor="first-name" className="block text-sm font-medium text-gray-700">
-                                First name
-                            </label>
-                            <input
+                            <FormInput
                                 type="text"
                                 name="first-name"
-                                id="first-name"
                                 autoComplete="given-name"
-                                className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm"
                                 value={firstName}
-                                onChange={(event) => setFirstName(event.target.value)}
+                                changed={setFirstName}
                                 required
-                            />
+                            >
+                                First name
+                            </FormInput>
                         </div>
 
                         <div className="col-span-6 sm:col-span-3">
-                            <label htmlFor="last-name" className="block text-sm font-medium text-gray-700">
-                                Last name
-                            </label>
-                            <input
+                            <FormInput
                                 type="text"
                                 name="last-name"
-                                id="last-name"
                                 autoComplete="family-name"
-                                className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm"
                                 value={lastName}
-                                onChange={(event) => setLastName(event.target.value)}
+                                changed={setLastName}
                                 required
-                            />
+                            >
+                                Last name
+                            </FormInput>
                         </div>
                         <div className="col-span-6">
-                            <label htmlFor="email-address" className="block text-sm font-medium text-gray-700">
-                                Email address
-                            </label>
-                            <input
-                                type="text"
+                            <FormInput
+                                type="email"
                                 name="email-address"
-                                id="email-address"
                                 autoComplete="email"
-                                className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm"
                                 value={email}
-                                onChange={(event) => setEmail(event.target.value)}
+                                changed={setEmail}
                                 required
-                            />
+                            >
+                                Email address
+                            </FormInput>
                         </div>
                         <div className="col-span-6">
-                            <label htmlFor="password" className="block text-sm font-medium text-gray-700">
-                                Password
-                            </label>
-                            <input
-                                id="password"
+                            <FormInput
                                 name="password"
                                 type="password"
-                                className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm"
                                 value={password}
-                                onChange={(event) => setPassword(event.target.value)}
+                                changed={setPassword}
                                 required
-                            />
+                            >
+                                Password
+                            </FormInput>
                         </div>
                         <div className="col-span-6">
-                            <label htmlFor="repeatPassword" className="block text-sm font-medium text-gray-700">
-                                Repeat Password
-                            </label>
-                            <input
-                                id="repeatPassword"
+                            <FormInput
                                 name="repeatPassword"
                                 type="password"
-                                className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm"
                                 value={repeatPassword}
-                                onChange={(event) => setRepeatPassword(event.target.value)}
+                                changed={setRepeatPassword}
                                 required
-                            />
+                            >
+                                Repeat Password
+                            </FormInput>
                         </div>
                     </div>
 

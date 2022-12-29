@@ -1,5 +1,5 @@
 export function classNames(...classes) {
-    return classes.filter(Boolean).join(' ')
+    return classes.flat().filter(Boolean).join(' ')
 }
 
 export function* chunks(arr, n) {

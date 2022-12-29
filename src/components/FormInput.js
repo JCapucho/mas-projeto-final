@@ -7,15 +7,17 @@ const classes = `mt-1 block w-full
     rounded-md border-gray-300 shadow-sm
     focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm`;
 
-export default function FormInput({ children, changed, className, ...rest }) {
+export default function FormInput({ children, changed, className, register, ...rest }) {
     const id = useId();
 
+    const methods = register ? register() : {};
     return <div className="w-full">
         <FormLabel id={id}>{children}</FormLabel>
         <input
             id={id}
             className={classNames(classes, className)}
             onChange={(event) => changed(event.target.value)}
+            {...methods}
             {...rest}
         />
     </div>;
@@ -70,7 +72,7 @@ export function CounterInput({changed, value, min, max, ...rest}) {
     return <div className="h-10 w-32">
         <div className="flex w-full h-10 rounded border border-gray-300 shadow-sm focus-within:border-indigo-500">
             <button
-                className="hover:bg-gray-300 h-full w-20 border-r"
+                className="h-full w-20 border-r hover:bg-gray-300 disabled:bg-gray-300 disabled:text-gray-400"
                 onClick={() => onChange(value - 1)}
                 disabled={min !== undefined && value <= min}
             >
@@ -87,7 +89,7 @@ export function CounterInput({changed, value, min, max, ...rest}) {
                 {...rest}
             />
             <button
-                className="hover:bg-gray-300 h-full w-20 border-l"
+                className="h-full w-20 border-l hover:bg-gray-300 disabled:bg-gray-300 disabled:text-gray-400"
                 onClick={() => onChange(value + 1)}
                 disabled={max !== undefined && value >= max}
             >

@@ -52,8 +52,8 @@ function RadioOption({ data, render }) {
     </RadioGroup.Option>;
 }
 
-export default function RadioInput({ label, selected, onChange, options, render, className }) {
-    return <RadioGroup value={selected} onChange={onChange} className={className}>
+export default function RadioInput({ label, selected, onChange, options, render, className, ...rest }) {
+    return <RadioGroup value={selected} onChange={onChange} className={className} {...rest}>
         <RadioGroup.Label className="sr-only">{label}</RadioGroup.Label>
         <div className="space-y-2">
             {options.map((option, i) => <RadioOption key={i} data={option} render={render} />)}

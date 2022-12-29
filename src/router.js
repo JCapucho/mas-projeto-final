@@ -1,4 +1,8 @@
-import { createBrowserRouter, Navigate, Outlet } from "react-router-dom";
+import { 
+    createBrowserRouter,
+    Navigate,
+    Outlet,
+} from "react-router-dom";
 
 import useAuthStore from "./store/auth"
 
@@ -14,6 +18,8 @@ import Register from './pages/Register';
 import Appointments from './pages/Appointments';
 import ProductsRoot from './pages/ProductsRoot';
 import Cart from './pages/Cart';
+import Checkout from './pages/Checkout';
+import PaymentSuccessful from './pages/PaymentSuccessful';
 
 import { LoadingComponent, NotFound, ErrorPage } from './utils';
 
@@ -93,8 +99,20 @@ export default createBrowserRouter([
                     {
                         path: "cart",
                         element: <Cart />,
-                    }
+                    },
+                    {
+                        path: "paymentSucess",
+                        element: <ProtectedRoute><PaymentSuccessful /></ProtectedRoute>,
+                        action: async ({ request }) => {
+                            const formData = await request.formData();
+                            return Object.fromEntries(formData);
+                        }
+                    },
                 ].concat(userRoutes)
+            },
+            {
+                path: "checkout",
+                element: <ProtectedRoute><Checkout /></ProtectedRoute>,
             },
         ]
     },
