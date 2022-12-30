@@ -82,7 +82,7 @@ export default function Cart() {
 
             <CurrentCart id={cartId} />
 
-            {!cartId && <>
+            {!cartId && carts.length !== 0 && <>
                 <h1 className="text-center text-3xl font-semibold border-t border-gray-400 p-5 mt-10">Stored carts</h1>
                 <div className="flex gap-5 overflow-x-auto p-5">
                     {carts.map((cart, i) => <CartCard key={i} cart={cart} />)}
