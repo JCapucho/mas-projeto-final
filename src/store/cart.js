@@ -98,7 +98,7 @@ const useCartStore = createStore("CartsStore", (set, get) => ({
 
             if (cartIndex < 0) {
                 changes["currentCart"] = cartData;
-                changes.dirty = true;
+                changes.draftDirty = true;
             } else {
                 const newCarts = [...state.carts];
                 newCarts[cartIndex] = cartData;
