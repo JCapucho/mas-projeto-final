@@ -58,19 +58,30 @@ const useCartStore = createStore("CartsStore", (set, get) => ({
             draftDirty: false,
             cartsDirty: {}
         }),
-        storeDraft: async (userId) => {
+        storeDraft: async (user) => {
             const state = get();
 
-            if (state.dirty)
-                await saveUserCartDraft(userId, state.currentCart);
+            state.cartActions().saveCart(user)
 
-            const cart = await storeDraftCart(userId);
+            const cart = await storeDraftCart(user.id);
 
             set(state => ({
                 dirty: false,
                 currentCart: {},
                 carts: [...state.carts, cart]
             }));
+        },
+        cartBought: async (cartId) => {
+            const cartData = await updateCart(cartId, { lastDate: new Date() });
+
+            set(state => {
+                const carts = [...state.carts];
+                const cartIndex = carts.find(cart => cart.id === cartId);
+
+                carts[cartIndex] = cartData;
+
+                return { carts: carts }
+            })
         }
     },
 
@@ -141,11 +152,10 @@ const useCartStore = createStore("CartsStore", (set, get) => ({
                 } else {
                     const changes = {
                         recurring: cart.recurring,
-                        lastDate: cart.lastDate,
                         products: cart.products,
                     };
 
-                    if (cart.nextDate) cart.nextDate = cart.nextDate;
+                    if (cart.nextDate) changes.nextDate = cart.nextDate;
 
                     const cartData = await updateCart(cart.id, changes);
 
@@ -160,6 +170,12 @@ const useCartStore = createStore("CartsStore", (set, get) => ({
                     })
                 }
             },
+            toggleRecurring: () => cartChangesAdapter(cart => {
+                return { ...cart, recurring: !cart.recurring };
+            }),
+            setNextDate: (date) => cartChangesAdapter(cart => {
+                return { ...cart, nextDate: date };
+            }),
         }
     }
 }));

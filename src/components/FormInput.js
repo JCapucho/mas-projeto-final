@@ -46,7 +46,7 @@ export function FormCheckbox({ children, changed, className, ...rest }) {
         focus:outline-none transition duration-200
         mr-2 cursor-pointer`;
 
-    return <div className="w-full my-3 flex items-end">
+    return <div className="w-full my-3 flex items-center">
         <input 
             id={id}
             type="checkbox"

@@ -215,6 +215,27 @@ function PaymentDetails() {
     </>;
 }
 
+function RecurringNotice({ cart }) {
+    const now = new Date();
+    const nextDateStr = cart.nextDate.toLocaleString('pt-PT', {
+        month: 'numeric',
+        day: 'numeric',
+    });
+
+    const numDays = Math.ceil(Math.abs((cart.nextDate - now) / (24 * 3600 * 1000)));
+    const numDaysStr = `${numDays} day${numDays > 1 ? "s" : ""}`
+
+    return<div className="shadow-xl bg-indigo-200 m-5 mt-10 p-5">
+        <h1 className="text-xl font-semibold pb-2 mb-2 border-b border-gray-400">Recurring</h1>
+
+        <p>You have marked this cart has recurring, this order will be repeated again
+        at {nextDateStr} and every {numDaysStr} afterwards, the orders will be
+        automatically billed.</p>
+
+        <p className="mt-3">The cart can be cancelled at any time.</p>
+    </div>;
+}
+
 function CartPane({ fees, cartId }) {
     const [loaded, cart] = useCartStore(state => [
         state.loaded,
@@ -263,6 +284,8 @@ function CartPane({ fees, cartId }) {
             <h2 className="text-xl">Total</h2>
             <h2 className="text-2xl font-semibold">{total.toFixed(2)}€</h2>
         </div>
+
+        { cart.recurring && <RecurringNotice cart={cart} /> }
     </div>;
 }
 

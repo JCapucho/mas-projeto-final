@@ -111,9 +111,12 @@ export default createBrowserRouter([
                         action: async ({ request }) => {
                             const formData = await request.formData();
 
-                            if(!formData.get("cartId")) {
+                            const cartId = formData.get("cartId");
+                            if(!cartId) {
                                 const user = await getUser();
-                                await useCartStore.getState().actions.storeDraft(user.id);
+                                await useCartStore.getState().actions.storeDraft(user);
+                            } else {
+                                await useCartStore.getState().actions.cartBought(cartId);
                             }
 
                             return Object.fromEntries(formData);

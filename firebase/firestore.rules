@@ -88,8 +88,8 @@ service cloud.firestore {
 
       function updateCheckFields(data, changedKeys) {
         return !changedKeys.hasAny(["owner"])
-            && (!("lastDate" in changedKeys) || data.lastDate > data.nextDate)
-            && (!("nextDate" in changedKeys) || data.nextDate > request.time);
+            && (!("lastDate" in changedKeys) || !data.recurring || data.lastDate > data.nextDate)
+            && (!("nextDate" in changedKeys) || !data.recurring || data.nextDate > request.time);
       }
 
       allow update: if (
