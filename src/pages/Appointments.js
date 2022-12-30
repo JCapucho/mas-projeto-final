@@ -173,8 +173,6 @@ export default function Appointments() {
         let days = 4;
         const width = el.offsetWidth;
 
-        console.log(width);
-
         if (width < 350)
             days = 2
         else if (width < 700)
