@@ -52,7 +52,6 @@ const useCartStore = createStore("CartsStore", (set, get) => ({
         },
         removeAll: () => set({ 
             loaded: false,
-            draftDirty: false,
             currentCart: {},
             carts: [],
             draftDirty: false,
