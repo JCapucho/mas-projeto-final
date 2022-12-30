@@ -4,15 +4,20 @@ import useCartStore from "../store/cart"
 
 import CartItems from "./CartItems"
 
-export default function CurrentCart({ controls = true }) {
-    const currentCart = useCartStore(state => state.currentCart);
+export default function CurrentCart({ controls = true, id = null }) {
+    const [currentCart, carts] = useCartStore(state => [
+        state.currentCart,
+        state.carts
+    ]);
 
-    if (currentCart.products !== undefined && Object.keys(currentCart.products).length !== 0) {
+    const cart = id === null ? currentCart : carts.find(cart => cart.id === id);
+
+    if (cart?.products !== undefined && Object.keys(cart.products).length !== 0) {
         return <div>
-            <CartItems />
+            <CartItems cart={cart} />
             <div className="flex justify-center mt-4">
                 <Link
-                    to={"/checkout"}
+                    to={"/checkout" + (id !== null ? `/${id}` : "")}
                     className="mx-auto bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded disabled:bg-gray-700"
                 >
                     Move to checkout

@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react';
-import { Link, useSubmit, Navigate } from "react-router-dom";
+import { Link, useSubmit, useParams, Navigate } from "react-router-dom";
 import { ArrowUturnLeftIcon } from '@heroicons/react/24/solid';
 import { Tab } from '@headlessui/react'
 import { useForm, FormProvider, useFormContext, Controller } from "react-hook-form";
@@ -215,24 +215,65 @@ function PaymentDetails() {
     </>;
 }
 
-export default function Checkout() {
-    const submit = useSubmit();
-    const formMethods = useForm({
-        defaultValues: { shipping: "home" }
-    });
-    const [loaded, cartProducts] = useCartStore(state => [
+function CartPane({ fees, cartId }) {
+    const [loaded, cart] = useCartStore(state => [
         state.loaded,
-        state.currentCart.products
+        cartId === null
+        ? state.currentCart
+        : state.carts.find(cart => cart.id === cartId)
     ]);
     const products = useProductsStore(state => state.products);
 
-    const [fees, setFees] = useState(5);
-
-    const subtotal = Object.entries(cartProducts || {}).reduce((accum, [id, quantity]) => {
+    const subtotal = Object.entries(cart?.products || {}).reduce((accum, [id, quantity]) => {
         const itemCost = products[id]?.price * quantity;
         return accum + itemCost;
     }, 0);
     const total = fees + subtotal;
+
+    if (loaded && (!cart?.products || Object.keys(cart?.products).length === 0))
+        return <Navigate to={"/dashboard"} replace />
+
+    return <div className="h-full w-full bg-indigo-100 p-10">
+        <div className="grid grid-cols-2 lg:grid-cols-3">
+            <Link
+                to={"/dashboard/cart"}
+                className="text-gray-500 font-bold py-2 rounded hover:bg-gray-500 hover:text-white"
+            >
+                <ArrowUturnLeftIcon className="inline h-6 w-6 mx-3" />
+                Back to cart
+            </Link>
+            <h1 className="text-center my-auto text-2xl font-semibold">Checkout</h1>
+            <div aria-hidden="true" />
+        </div>
+        <CartItems controls={false} cart={cart} />
+
+        <div className="border-t border-gray-400 pt-2 m-5">
+            <div className="flex justify-between">
+                <h2 className="text-lg">Subtotal</h2>
+                <h2 className="text-xl font-semibold">{subtotal.toFixed(2)}€</h2>
+            </div>
+
+            <div className="flex justify-between">
+                <h2 className="text-lg">Shipping</h2>
+                <h2 className="text-xl font-semibold">{fees === 0 ? "Free" : fees.toFixed(2) + "€"}</h2>
+            </div>
+        </div>
+
+        <div className="border-t border-gray-400 flex justify-between pt-2 m-5">
+            <h2 className="text-xl">Total</h2>
+            <h2 className="text-2xl font-semibold">{total.toFixed(2)}€</h2>
+        </div>
+    </div>;
+}
+
+export default function Checkout() {
+    const submit = useSubmit();
+    const { cartId = null } = useParams();
+    const formMethods = useForm({
+        defaultValues: { shipping: "home" }
+    });
+
+    const [fees, setFees] = useState(5);
 
     function onSubmit(data) {
         const formData = new FormData();
@@ -240,45 +281,16 @@ export default function Checkout() {
         for (const [key, value] of Object.entries(data))
             formData.append(key, value)
 
+        formData.append("cartId", cartId);
+
         submit(formData, { method: "post", action: "/dashboard/paymentSucess" });
     }
 
-    if (loaded && (!cartProducts || Object.keys(cartProducts).length === 0))
-        return <Navigate to={"/dashboard"} replace />
+    const loaded = useCartStore(state => state.loaded);
 
-    return (
+    return <LoadingComponent loading={!loaded}>
         <div className="h-screen grid grid-cols-1 md:grid-cols-2">
-            <div className="h-full w-full bg-indigo-100 p-10">
-                <div className="grid grid-cols-2 lg:grid-cols-3">
-                    <Link
-                        to={"/dashboard/cart"}
-                        className="hover:bg-gray-500 text-gray-500 font-bold py-2 rounded disabled:bg-gray-700"
-                    >
-                        <ArrowUturnLeftIcon className="inline h-6 w-6 mx-3" />
-                        Back to cart
-                    </Link>
-                    <h1 className="text-center my-auto text-2xl font-semibold">Checkout</h1>
-                    <div aria-hidden="true" />
-                </div>
-                <CartItems controls={false} />
-
-                <div className="border-t border-gray-400 pt-2 m-5">
-                    <div className="flex justify-between">
-                        <h2 className="text-lg">Subtotal</h2>
-                        <h2 className="text-xl font-semibold">{subtotal.toFixed(2)}€</h2>
-                    </div>
-
-                    <div className="flex justify-between">
-                        <h2 className="text-lg">Shipping</h2>
-                        <h2 className="text-xl font-semibold">{fees === 0 ? "Free" : fees.toFixed(2) + "€"}</h2>
-                    </div>
-                </div>
-
-                <div className="border-t border-gray-400 flex justify-between pt-2 m-5">
-                    <h2 className="text-xl">Total</h2>
-                    <h2 className="text-2xl font-semibold">{total.toFixed(2)}€</h2>
-                </div>
-            </div>
+            <CartPane fees={fees} cartId={cartId} />
             <FormProvider {...formMethods} >
                 <form className="p-10" onSubmit={formMethods.handleSubmit(onSubmit)}>
                     <ShippingInformation changed={method => {
@@ -295,5 +307,5 @@ export default function Checkout() {
                 </form>
             </FormProvider>
         </div>
-    );
+    </LoadingComponent>;
 }

@@ -1,6 +1,12 @@
 import { createStore } from "./utils";
 
-import { getUserCarts, getUserCartDraft, saveUserCartDraft, storeDraftCart } from "../managers/CartManager";
+import {
+    getUserCarts,
+    getUserCartDraft,
+    saveUserCartDraft,
+    storeDraftCart,
+    updateCart
+} from "../managers/CartManager";
 
 import useAuthStore, { addLogoutHook } from "./auth";
 
@@ -15,80 +21,43 @@ function createWriteBackController(callback, debounce = 500) {
     return { change };
 }
 
-const writeback = createWriteBackController(saveDraft);
+const writeback = createWriteBackController(saveCarts);
 
 const useCartStore = createStore("CartsStore", (set, get) => ({
     loaded: false,
-    dirty: false,
+
     currentCart: {},
     carts: [],
+
+    draftDirty: false,
+    cartsDirty: {},
 
     productsInCart: (cart) =>
         Object.values(cart.products || {}).reduce((accum, value) => accum + value, 0),
 
     actions: {
-        addProduct: (product) => set(state => {
-            const cartProducts = { ...state.currentCart.products };
-
-            if(!cartProducts[product])
-                cartProducts[product] = 0;
-
-            cartProducts[product] += 1;
-
-            writeback.change();
-
-            return {
-                dirty: true,
-                currentCart: { ...state.currentCart, products: cartProducts }
-            };
-        }),
-        removeProduct: (product) => set(state => {
-            const cartProducts = { ...state.currentCart.products };
-
-            delete cartProducts[product];
-
-            writeback.change();
-
-            return {
-                dirty: true,
-                currentCart: { ...state.currentCart, products: cartProducts }
-            };
-        }),
-        changeQuantity: (product, quantity) => set(state => {
-            const cartProducts = { ...state.currentCart.products };
-
-            cartProducts[product] = quantity;
-
-            writeback.change();
-
-            return {
-                dirty: true,
-                currentCart: { ...state.currentCart, products: cartProducts }
-            };
-        }),
-
         loadUserCarts: async (userId) => {
             const [carts, draft] = await Promise.all([
                 getUserCarts(userId),
                 getUserCartDraft(userId),
             ]);
 
-            set({ loaded: true, dirty: false, currentCart: draft, carts });
+            set({ 
+                loaded: true,
+                currentCart: draft,
+                carts,
+                draftDirty: false,
+                cartsDirty: {}
+            });
         },
         removeAll: () => set({ 
             loaded: false,
-            dirty: false,
+            draftDirty: false,
             currentCart: {},
-            carts: []
+            carts: [],
+            draftDirty: false,
+            cartsDirty: {}
         }),
-        saveDraft: async (user) => {
-            const state = get();
-
-            if (!state.dirty) return;
-
-            await saveUserCartDraft(user.id, state.currentCart);
-            set({ dirty: false })
-        },
         storeDraft: async (userId) => {
             const state = get();
 
@@ -104,15 +73,109 @@ const useCartStore = createStore("CartsStore", (set, get) => ({
             }));
         }
     },
+
+    cartActions: (cartId) => {
+        const getCart = (state) => {
+            const cartIndex = cartId ? state.carts.findIndex(cart => cart.id === cartId) : -1;
+            const cart = cartIndex < 0 ? state.currentCart : state.carts[cartIndex];
+
+            return { cart, cartIndex };
+        };
+        const cartChangesAdapter = (mutator) => set(state => {
+            const { cart, cartIndex } = getCart(state);
+            const changes = {};
+            const cartData = mutator(cart);
+
+            if (cartIndex < 0) {
+                changes["currentCart"] = cartData;
+                changes.dirty = true;
+            } else {
+                const newCarts = [...state.carts];
+                newCarts[cartIndex] = cartData;
+                changes["carts"] = newCarts;
+
+                changes.cartsDirty = {...state.cartsDirty};
+                changes.cartsDirty[cart.id] = true;
+            }
+
+            writeback.change();
+
+            return changes;
+        });
+
+        return {
+            addProduct: (product) => cartChangesAdapter(cart => {
+                const cartProducts = { ...cart.products };
+
+                if(!cartProducts[product])
+                    cartProducts[product] = 0;
+
+                cartProducts[product] += 1;
+
+                return { ...cart, products: cartProducts };
+            }),
+            removeProduct: (product) => cartChangesAdapter(cart => {
+                const cartProducts = { ...cart.products };
+
+                delete cartProducts[product];
+
+                return { ...cart, products: cartProducts };
+            }),
+            changeQuantity: (product, quantity) => cartChangesAdapter(cart => {
+                const cartProducts = { ...cart.products };
+
+                cartProducts[product] = quantity;
+
+                return { ...cart, products: cartProducts };
+            }),
+            saveCart: async (user) => {
+                const state = get();
+                const { cart, cartIndex } = getCart(state);
+
+                const dirty = cartIndex < 0 ? state.draftDirty : state.cartsDirty[cart.id];
+                if (!dirty) return;
+
+                if (cartIndex < 0) {
+                    await saveUserCartDraft(user.id, cart);
+                    set({ dirty: false })
+                } else {
+                    const changes = {
+                        recurring: cart.recurring,
+                        lastDate: cart.lastDate,
+                        products: cart.products,
+                    };
+
+                    if (cart.nextDate) cart.nextDate = cart.nextDate;
+
+                    const cartData = await updateCart(cart.id, changes);
+
+                    set(state => {
+                        const carts = [...state.carts];
+                        const cartsDirty = {...state.cartsDirty};
+
+                        carts[cartIndex] = cartData;
+                        delete cartsDirty[cart.id];
+
+                        return { cartsDirty, carts: carts }
+                    })
+                }
+            },
+        }
+    }
 }));
 
-async function saveDraft() {
+async function saveCarts() {
     const user = useAuthStore.getState().user;
-    useCartStore.getState().actions.saveDraft(user);
+    const { draftDirty, cartsDirty, cartActions } = useCartStore.getState();
+
+    await Promise.all([
+        ...(draftDirty ? [cartActions().saveCart(user)] : []),
+        ...Object.keys(cartsDirty).map(id => cartActions(id).saveCart(user))
+    ])
 }
 
 addLogoutHook(async () => {
-    await saveDraft();
+    await saveCarts();
     useCartStore.getState().actions.removeAll();
 });
 
@@ -123,7 +186,7 @@ useAuthStore.subscribe(state => {
 
 document.addEventListener('visibilitychange', (event) => {
     if (document.visibilityState === 'hidden')
-        saveDraft();
+        saveCarts();
 });
 
 export default useCartStore;

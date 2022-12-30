@@ -86,27 +86,18 @@ service cloud.firestore {
       allow read: if userPath(request.auth.uid) == resource.data.owner
         || getUser(request.auth.uid).data.staff;
 
-      function updateCheckFields(isStaff, data, changedKeys) {
-        return isStaff
-            && !changedKeys.hasAny(["owner"])
+      function updateCheckFields(data, changedKeys) {
+        return !changedKeys.hasAny(["owner"])
             && (!("lastDate" in changedKeys) || data.lastDate > data.nextDate)
             && (!("nextDate" in changedKeys) || data.nextDate > request.time);
       }
 
       allow update: if (
-            userPath(request.auth.uid) == request.resource.data.owner
-            && updateCheckFields(
-                false,
-                request.resource.data,
-                request.resource.data.diff(resource.data).affectedKeys()
-            )
-        ) || (
-            getUser(request.auth.uid).data.staff
-            && updateCheckFields(
-                true,
-                request.resource.data,
-                request.resource.data.diff(resource.data).affectedKeys()
-            )
+            userPath(request.auth.uid) == resource.data.owner
+            || getUser(request.auth.uid).data.staff
+        ) && updateCheckFields(
+            request.resource.data,
+            request.resource.data.diff(resource.data).affectedKeys()
         );
 
       allow create: if (userPath(request.auth.uid) == request.resource.data.owner || getUser(request.auth.uid).data.staff)

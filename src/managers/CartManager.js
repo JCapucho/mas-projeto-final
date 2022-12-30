@@ -1,4 +1,4 @@
-import { collection, doc, getDocs, getDoc, setDoc, query, where, runTransaction } from "firebase/firestore";
+import { collection, doc, getDocs, getDoc, setDoc, updateDoc, query, where, runTransaction } from "firebase/firestore";
 import { db } from "../firebase/base";
 
 import { usersCollection } from "./UserManager";
@@ -98,3 +98,43 @@ export async function storeDraftCart(userId) {
     });
 }
 
+/// Edits a cart in the database.
+//
+/// # Inputs
+///
+/// - `cartData`:
+/// ```
+/// {
+///   recurring: boolean,
+///   lastDate: Date,
+///   nextDate: Date,
+///   products: { product: quantity },
+/// }
+/// ```
+///
+/// # Returns
+///
+/// An object with the following shape:
+/// ```
+/// {
+///   name: string,
+///   price: float,
+///   sectionId: string,
+///   section: FirebaseDocRef,
+///   photo: string,
+/// }
+/// ```
+export async function updateCart(id, cartData) {
+    const cartRef = doc(cartsCollection, id);
+
+    await updateDoc(cartRef, cartData);
+
+    const snap = await getDoc(cartRef);
+    const data = snap.data();
+
+    data.id = id;
+    data.lastDate = data.lastDate.toDate();
+    data.nextDate = data.nextDate?.toDate();
+
+    return data;
+}

@@ -1,10 +1,29 @@
-export default function GenericCard({ name, img, children, header }) {
+import { classNames } from "../utils";
+
+export default function GenericCard({ 
+    name,
+    img,
+    children,
+    header,
+    className,
+    width = "w-96",
+    imgWidth = "300px",
+    imgHeight = "300px",
+    ...rest
+}) {
     return (
-        <div className="self-stretch rounded-lg shadow-lg bg-white p-6 w-96 flex flex-col justify-between">
+        <div 
+            className={classNames(
+                "self-stretch rounded-lg shadow-lg bg-white p-6 flex flex-col justify-between",
+                width,
+                className
+            )}
+            {...rest}
+        >
             {header}
             <img 
                 className="rounded-t-lg mx-auto"
-                style={{ maxHeight: "300px", maxWidth: "300px" }}
+                style={{ maxHeight: imgWidth, maxWidth: imgHeight }}
                 src={img}
                 alt={name} />
             <div className="flex justify-center items-center mt-4 flex-col">

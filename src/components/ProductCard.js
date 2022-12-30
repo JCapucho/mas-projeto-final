@@ -9,7 +9,7 @@ import GenericCard from "./GenericCard";
 export default function ProductCard({ product, edit }) {
     const isStaff = useAuthStore(state => state.user?.staff === true);
     const deleteProduct = useProductStore(state => state.actions.deleteProduct);
-    const cartActions = useCartStore(state => state.actions);
+    const cartActions = useCartStore(state => state.cartActions());
 
     function addToCart() {
         cartActions.addProduct(product.id);

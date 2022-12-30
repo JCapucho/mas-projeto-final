@@ -102,14 +102,20 @@ export default createBrowserRouter([
                         element: <Cart />,
                     },
                     {
+                        path: "cart/:cartId",
+                        element: <Cart />,
+                    },
+                    {
                         path: "paymentSucess",
                         element: <ProtectedRoute><PaymentSuccessful /></ProtectedRoute>,
                         action: async ({ request }) => {
-                            const user = await getUser();
-
-                            await useCartStore.getState().actions.storeDraft(user.id);
-
                             const formData = await request.formData();
+
+                            if(!formData.get("cartId")) {
+                                const user = await getUser();
+                                await useCartStore.getState().actions.storeDraft(user.id);
+                            }
+
                             return Object.fromEntries(formData);
                         }
                     },
@@ -117,6 +123,10 @@ export default createBrowserRouter([
             },
             {
                 path: "checkout",
+                element: <ProtectedRoute><Checkout /></ProtectedRoute>,
+            },
+            {
+                path: "checkout/:cartId",
                 element: <ProtectedRoute><Checkout /></ProtectedRoute>,
             },
         ]
