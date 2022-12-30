@@ -211,7 +211,7 @@ export default function Appointments() {
                     <Route
                         index
                         element={<LoadingComponent loading={loading}>
-                            {appointments.length > 0
+                            {(!isRegularUser || appointments.length > 0)
                             ? <UserAppointments />
                             : <Navigate to={"medic"} replace />}
                         </LoadingComponent>}
