@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useRef } from 'react';
 import { Link, Routes, Route, useResolvedPath, useMatch, Navigate, useNavigate } from 'react-router-dom';
 
 import FullCalendar from '@fullcalendar/react'
@@ -94,6 +94,7 @@ function SelectionLink({ to, children, className, ...rest }) {
 }
 
 export default function Appointments() {
+    const calendarRef = useRef();
     const navigate = useNavigate();
 
     const [appointments, aptsActions] = useAppointmentsStore(
@@ -168,6 +169,25 @@ export default function Appointments() {
     if (appointments.length > 0)
         userOptions.unshift({ name: 'My appointments', to: "" });
 
+    function setCalendarDays(calendar, el) {
+        let days = 4;
+        const width = el.offsetWidth;
+
+        console.log(width);
+
+        if (width < 350)
+            days = 2
+        else if (width < 700)
+            days = 3
+
+        calendar.setOption('duration', { days });
+    }
+
+    useEffect(() => {
+        const calendar = calendarRef.current;
+        setCalendarDays(calendar.getApi(), calendar.elRef.current);
+    }, []);
+
     return <div className="flex flex-col lg:flex-row p-5 gap-5 mx-auto max-w-7xl">
         <div>
             {isRegularUser &&
@@ -221,9 +241,21 @@ export default function Appointments() {
         </div>
         <div className="flex-grow">
             <FullCalendar
+                ref={calendarRef}
                 plugins={[interactionPlugin, timeGridPlugin]}
-                initialView='timeGridWeek'
+
+                initialView={"timeGrid"}
+                duration={{ days: 4 }}
+                businessHours={{
+                    daysOfWeek: [0, 1, 2, 3, 4, 5, 6],
+                    startTime: '07:00',
+                    endTime: '20:00'
+                }}
+                windowResize={function() {
+                    setCalendarDays(this, this.el)
+                }}
                 allDaySlot={false}
+
                 validRange={function(nowDate) {
                     return { start: nowDate };
                 }}
