@@ -1,3 +1,5 @@
+import { useRouteError } from "react-router-dom";
+
 export function classNames(...classes) {
     return classes.flat().filter(Boolean).join(' ')
 }
@@ -38,6 +40,11 @@ export function NotFound() {
 }
 
 export function ErrorPage() {
+    const error = useRouteError();
+
+    if (!process.env.NODE_ENV || process.env.NODE_ENV === 'development')
+        console.error(error);
+
     return <div className="flex flex-col p-10 justify-center gap-10">
         <h1 className="text-center text-4xl font-bold">Something went <u>very</u> wrong</h1>
         <div className="mx-auto">

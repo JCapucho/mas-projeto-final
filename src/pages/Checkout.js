@@ -304,7 +304,8 @@ export default function Checkout() {
         for (const [key, value] of Object.entries(data))
             formData.append(key, value)
 
-        formData.append("cartId", cartId);
+        if(cartId)
+            formData.append("cartId", cartId);
 
         submit(formData, { method: "post", action: "/dashboard/paymentSucess" });
     }
