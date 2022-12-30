@@ -55,7 +55,7 @@ function CartControls({ cartId, carts }) {
         <div>
             <Link
                 to={".."}
-                className="block bg-blue-500 hover:bg-blue-700 text-white font-bold py-3 px-4 rounded"
+                className="inline-block bg-blue-500 hover:bg-blue-700 text-white font-bold py-3 px-4 rounded"
                 relative="path"
             >
                 <ArrowUturnLeftIcon className="inline h-6 w-6 mr-3" />
