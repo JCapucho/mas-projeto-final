@@ -59,6 +59,9 @@ export async function getUserCartDraft(userId) {
         products: {}
     };
 
+    cart.lastDate = cart.lastDate?.toDate();
+    cart.nextDate = cart.nextDate?.toDate();
+
     return cart;
 }
 
