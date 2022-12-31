@@ -1,15 +1,49 @@
+import { Link } from "react-router-dom";
 import GenericButton from "./GenericButton";
 
 function StaffControls({appointment, appointmentApproved, user}) {
-    if(!appointment.approved)
+    const now = new Date();
+
+    if(!appointment.approved) {
         return <GenericButton
             onClick={() => appointmentApproved(appointment)}
             className="mt-0"
         >
             Approve
         </GenericButton>
-    else
+    } else if (
+        appointment.location === "Remoto"
+        && appointment.start <= now
+        && appointment.end >= now
+    ) {
+        return <Link
+            to={`../remote/${appointment.id}`}
+            className="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded disabled:bg-gray-700"
+        >
+            Enter call
+        </Link>
+    } else {
         return <p className="text-green-700">Approved</p>
+    }
+}
+
+function UserControls({appointment, appointmentApproved, user}) {
+    const now = new Date();
+
+    if (!appointment.approved) {
+        return <p className="text-red-700">Missing approval</p>
+    } else if (
+        appointment.location === "Remoto"
+        && appointment.start <= now
+        && appointment.end >= now
+    ) {
+        return <Link
+            to={`../remote/${appointment.id}`}
+            className="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded disabled:bg-gray-700"
+        >
+            Enter call
+        </Link>
+    }
 }
 
 function DateRangeDisplay({range, className}) {
@@ -42,7 +76,7 @@ function DateRangeDisplay({range, className}) {
 export default function UserAppointmentEntry({appointment, appointmentApproved, user}) {
     const actions = user.id === appointment.responsible.id
         ? <StaffControls appointment={appointment} user={user} appointmentApproved={appointmentApproved} />
-        : !appointment.approved && <p className="text-red-700">Missing approval</p>;
+        : <UserControls appointment={appointment} user={user} appointmentApproved={appointmentApproved} />;
 
     return <div className="w-full flex rounded-lg shadow-lg bg-white px-6 py-4 mt-5 justify-between">
         <div className="flex flex-col flex-grow items-start">

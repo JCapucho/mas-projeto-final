@@ -1,4 +1,21 @@
 {
-  "indexes": [],
-  "fieldOverrides": []
+    "indexes": [
+        {
+            "collectionGroup": "appointments",
+            "queryScope": "COLLECTION",
+            "fields": [
+                { "fieldPath": "owner", "order": "ASCENDING" },
+                { "fieldPath": "end", "order": "ASCENDING" }
+            ]
+        },
+        {
+            "collectionGroup": "appointments",
+            "queryScope": "COLLECTION",
+            "fields": [
+                { "fieldPath": "responsible", "order": "ASCENDING" },
+                { "fieldPath": "end", "order": "ASCENDING" }
+            ]
+        }
+    ],
+    "fieldOverrides": []
 }

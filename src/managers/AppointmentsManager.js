@@ -2,7 +2,8 @@ import { collection, doc, getDocs, getDoc, setDoc, updateDoc, query, where } fro
 import { db } from "../firebase/base";
 
 import { usersCollection } from "./UserManager";
-const appointmentsCollection = collection(db, 'appointments');
+
+export const appointmentsCollection = collection(db, 'appointments');
 
 /// Retrieves a list of all the appointments
 ///
@@ -40,6 +41,37 @@ export async function getAppointments(from, to) {
     return appointments;
 }
 
+/// Retrieves an appointment by id
+///
+/// # Returns
+///
+/// An object with the following shape:
+/// ```
+/// {
+///   id: string,
+///   start: Date,
+///   end: Date,
+///   location: string,
+///   owner: FirebaseDocRef,
+///   responsible: FirebaseDocRef,
+///   approved: boolean,
+/// }
+/// ```
+export async function getAppointment(id) {
+    const aptRef = doc(appointmentsCollection, id);
+    const aptSnap = await getDoc(aptRef);
+
+    const appointment = aptSnap.data();
+
+    if(!appointment) return;
+
+    appointment.id = aptRef.id;
+    appointment.start = appointment.start.toDate();
+    appointment.end = appointment.end.toDate();
+
+    return appointment;
+}
+
 /// Retrieves a list of all the appointments beloging to the user
 ///
 /// # Returns
@@ -57,8 +89,12 @@ export async function getAppointments(from, to) {
 /// }
 /// ```
 export async function getUserAppointments(userId) {
+    const now = new Date();
     const userRef = doc(usersCollection, userId);
-    const q = query(appointmentsCollection, where("owner", "==", userRef));
+    const q = query(appointmentsCollection,
+        where("owner", "==", userRef),
+        where("end", ">=", now)
+    );
     const appointmentsQuery = await getDocs(q);
 
     const appointments = [];
@@ -90,8 +126,13 @@ export async function getUserAppointments(userId) {
 /// }
 /// ```
 export async function getResponsibleAppointments(userId) {
+    const now = new Date();
     const userRef = doc(usersCollection, userId);
-    const q = query(appointmentsCollection, where("responsible", "==", userRef));
+    const q = query(
+        appointmentsCollection,
+        where("responsible", "==", userRef),
+        where("end", ">=", now)
+    );
     const appointmentsQuery = await getDocs(q);
 
     const appointments = [];

@@ -21,6 +21,7 @@ import ProductsRoot from './pages/ProductsRoot';
 import Cart from './pages/Cart';
 import Checkout from './pages/Checkout';
 import PaymentSuccessful from './pages/PaymentSuccessful';
+import RemoteAppointment from './pages/RemoteAppointment';
 
 import { LoadingComponent, NotFound, ErrorPage } from './utils';
 
@@ -121,6 +122,10 @@ export default createBrowserRouter([
 
                             return Object.fromEntries(formData);
                         }
+                    },
+                    {
+                        path: "remote/:appointmentId",
+                        element: <RemoteAppointment />,
                     },
                 ].concat(userRoutes)
             },

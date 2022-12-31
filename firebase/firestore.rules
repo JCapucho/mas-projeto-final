@@ -64,7 +64,7 @@ service cloud.firestore {
         return get(/databases/(default)/documents/appointments/$(appointment_id)).data
       }
 
-      match /private/{document=**} {
+      match /private/info {
         allow read: if userPath(request.auth.uid) == AppointmentData().owner
             || userPath(request.auth.uid) == AppointmentData().responsible
             || getUser(request.auth.uid).data.staff;
@@ -73,6 +73,24 @@ service cloud.firestore {
             || getUser(request.auth.uid).data.staff;
 
         allow create: if userPath(request.auth.uid) == AppointmentData().owner
+            || getUser(request.auth.uid).data.staff;
+      }
+
+      match /private/call {
+        allow read, write: if userPath(request.auth.uid) == AppointmentData().owner
+            || userPath(request.auth.uid) == AppointmentData().responsible
+            || getUser(request.auth.uid).data.staff;
+      }
+
+      match /callee/{document=**} {
+        allow read, write: if userPath(request.auth.uid) == AppointmentData().owner
+            || userPath(request.auth.uid) == AppointmentData().responsible
+            || getUser(request.auth.uid).data.staff;
+      }
+
+      match /caller/{document=**} {
+        allow read, write: if userPath(request.auth.uid) == AppointmentData().owner
+            || userPath(request.auth.uid) == AppointmentData().responsible
             || getUser(request.auth.uid).data.staff;
       }
     }
