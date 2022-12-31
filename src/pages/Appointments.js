@@ -253,6 +253,8 @@ export default function Appointments() {
                     setCalendarDays(this, this.el)
                 }}
                 allDaySlot={false}
+                slotDuration={'00:15:00'}
+                slotLabelInterval={{hours: 1}}
 
                 validRange={function(nowDate) {
                     return { start: nowDate };
