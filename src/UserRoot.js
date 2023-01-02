@@ -2,7 +2,7 @@ import { Fragment } from 'react';
 import { Disclosure, Menu, Transition } from '@headlessui/react';
 import { Bars3Icon, XMarkIcon } from '@heroicons/react/24/outline';
 import { ShoppingCartIcon } from '@heroicons/react/24/solid';
-import { Link, Outlet, useMatch, useResolvedPath } from "react-router-dom";
+import { Link, Outlet, useMatch, useResolvedPath, useNavigate } from "react-router-dom";
 
 import { userRoutes } from "./router";
 import { classNames } from "./utils";
@@ -47,7 +47,13 @@ function CartLink() {
 }
 
 export default function UserRoot() {
+    const navigate = useNavigate();
     const authActions = useAuthStore(state => state.actions);
+
+    function logout() {
+        authActions.logout();
+        navigate("/");
+    }
 
     return (
         <>
@@ -119,7 +125,7 @@ export default function UserRoot() {
                                                     {({ active }) => (
                                                         <button
                                                             className={classNames(active ? 'bg-gray-100' : '', 'block px-4 py-2 text-sm text-gray-700 w-full text-left')}
-                                                            onClick={authActions.logout}
+                                                            onClick={logout}
                                                         >
                                                             Sign out
                                                         </button>

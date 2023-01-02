@@ -91,7 +91,7 @@ export default function NewSubscription() {
     const submit = useSubmit();
     const formMethods = useForm();
 
-    const [selected, setSelected] = useState(plans[location.state.plan ?? 0]);
+    const [selected, setSelected] = useState(plans[location.state?.plan ?? 0]);
 
     async function onSubmit(data) {
         await actions.newAnimal(user, {

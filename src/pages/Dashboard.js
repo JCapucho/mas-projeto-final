@@ -34,9 +34,10 @@ export default function Dashboard() {
         state.appointments,
         state.actions,
     ]);
-    const cart = useCartStore(state => state.currentCart);
-
-    //if () {
+    const [cartLoaded, cart] = useCartStore(state => [
+        state.loaded,
+        state.currentCart
+    ]);
 
     return <div className="m-5 flex flex-wrap gap-5 justify-around">
         <div>
@@ -81,8 +82,10 @@ export default function Dashboard() {
         </div>
         <div>
             <h1 className="text-2xl font-semibold text-center">My cart</h1>
-            <CartItems cart={cart} />
-            {(!cart?.products || Object.keys(cart.products).length === 0) && <p>No products in the cart</p>}
+            <LoadingComponent loading={!cartLoaded}>
+                <CartItems cart={cart} />
+                {(!cart?.products || Object.keys(cart.products).length === 0) && <p>No products in the cart</p>}
+            </LoadingComponent>
             <div className="flex justify-center mt-4">
                 <Link
                     to={"products"}
