@@ -1,4 +1,4 @@
-import { Fragment } from 'react';
+import { Fragment, useEffect } from 'react';
 import { Disclosure, Menu, Transition } from '@headlessui/react';
 import { Bars3Icon, XMarkIcon } from '@heroicons/react/24/outline';
 import { ShoppingCartIcon } from '@heroicons/react/24/solid';
@@ -7,8 +7,9 @@ import { Link, Outlet, useMatch, useResolvedPath, useNavigate } from "react-rout
 import { userRoutes } from "./router";
 import { classNames } from "./utils";
 
-import useCartStore from "./store/cart";
 import useAuthStore from "./store/auth";
+import useCartStore from "./store/cart";
+import useAnimalsStore from "./store/animals";
 
 import logo from './logo.png';
 
@@ -49,6 +50,15 @@ function CartLink() {
 export default function UserRoot() {
     const navigate = useNavigate();
     const authActions = useAuthStore(state => state.actions);
+    const [animalsLoaded, animals] = useAnimalsStore(state => [
+        state.loaded,
+        state.animals,
+    ]);
+
+    useEffect(() => {
+        if (animalsLoaded && animals.length === 0)
+            navigate("/newSubscription")
+    }, [animals, animalsLoaded, navigate]);
 
     function logout() {
         authActions.logout();

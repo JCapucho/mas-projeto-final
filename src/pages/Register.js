@@ -34,7 +34,7 @@ export default function Register() {
         try {
             const user = await register(email, password, firstName, lastName);
             setUser(user);
-            navigate(location.state.intent || "/dashboard", { replace: true });
+            navigate(location.state?.intent ?? "/dashboard", { replace: true });
         } catch (e) {
             if (e instanceof EmailAlreadyInUse)
                 setBanner("The provided email is already in use");
@@ -148,7 +148,7 @@ export default function Register() {
                 <div>
                     <Link
                         to={"/login"}
-                        state={{ intent: location.state.intent }}
+                        state={location.state}
                         className="w-full block text-center rounded-md border-2 border-gray-500 bg-transparent text-gray-900 py-2 px-4 text-sm font-medium hover:border-gray-900 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:ring-offset-2"
                     >
                         Sign in
