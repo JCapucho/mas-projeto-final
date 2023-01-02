@@ -109,7 +109,7 @@ export default function Dashboard() {
     const user = useAuthStore(state => state.user);
     const regularUser = !user.staff && !user.medic;
 
-    return <div className="m-5 flex flex-wrap gap-5 justify-around max-w-7xl">
+    return <div className="w-full m-5 flex flex-wrap gap-5 justify-around max-w-7xl mx-auto">
         {regularUser && <AnimalsList />}
         <AppointmentsList />
         {regularUser && <CartList />}

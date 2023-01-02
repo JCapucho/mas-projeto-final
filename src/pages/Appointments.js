@@ -186,7 +186,7 @@ export default function Appointments() {
         setCalendarDays(calendar.getApi(), calendar.elRef.current);
     }, []);
 
-    return <div className="flex flex-col lg:flex-row p-5 gap-5 mx-auto max-w-7xl">
+    return <div className="w-full flex flex-col lg:flex-row p-5 gap-5 mx-auto max-w-7xl">
         <div>
             {isRegularUser &&
             <div className="flex text-sm font-medium text-center text-gray-500 rounded-lg divide-x divide-gray-200 shadow items-stretch">
