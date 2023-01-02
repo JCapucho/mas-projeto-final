@@ -3,11 +3,18 @@ import { useId } from "react"
 import { classNames } from "../utils";
 import FormLabel from "./FormLabel";
 
-const classes = `mt-1 block w-full
-    rounded-md border-gray-300 shadow-sm
+const classes = `block w-full rounded-md shadow-sm
     focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm`;
 
-export default function FormInput({ children, changed, className, register, ...rest }) {
+export default function FormInput({ 
+    children,
+    changed,
+    className,
+    register,
+    margin = "mt-1",
+    border = "border-gray-300",
+    ...rest
+}) {
     const id = useId();
 
     const methods = register ? register() : {};
@@ -15,7 +22,7 @@ export default function FormInput({ children, changed, className, register, ...r
         <FormLabel id={id}>{children}</FormLabel>
         <input
             id={id}
-            className={classNames(classes, className)}
+            className={classNames(classes, className, margin, border)}
             onChange={(event) => changed(event.target.value)}
             {...methods}
             {...rest}
@@ -23,7 +30,14 @@ export default function FormInput({ children, changed, className, register, ...r
     </div>;
 }
 
-export function FormTextarea({ children, changed, className, ...rest }) {
+export function FormTextarea({ 
+    children,
+    changed,
+    className,
+    margin = "mt-1",
+    border = "border-gray-300",
+    ...rest
+}) {
     const id = useId();
 
     return <div className="w-full">

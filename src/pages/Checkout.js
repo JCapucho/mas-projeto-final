@@ -114,8 +114,7 @@ function ShippingInformation({ changed }) {
                         label: location.name,
                     })}
                 />}
-        >
-        </Controller>
+        />
     </LoadingComponent>;
 
     return <div className="mb-5 border-b border-gray-400">

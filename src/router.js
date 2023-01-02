@@ -22,8 +22,11 @@ import Appointments from './pages/Appointments';
 import ProductsRoot from './pages/ProductsRoot';
 import Cart from './pages/Cart';
 import Checkout from './pages/Checkout';
+import NewSubscription from './pages/NewSubscription';
 import PaymentSuccessful from './pages/PaymentSuccessful';
+import SubscriptionSuccessful from './pages/SubscriptionSuccessful';
 import RemoteAppointment from './pages/RemoteAppointment';
+import Animals from './pages/Animals';
 
 import { LoadingComponent, NotFound, ErrorPage } from './utils';
 
@@ -129,8 +132,17 @@ export default createBrowserRouter([
                         }
                     },
                     {
+                        path: "SubscriptionSuccessful",
+                        element: <ProtectedRoute><SubscriptionSuccessful /></ProtectedRoute>,
+                        action: () => null,
+                    },
+                    {
                         path: "remote/:appointmentId",
                         element: <RemoteAppointment />,
+                    },
+                    {
+                        path: "animals",
+                        element: <Animals />,
                     },
                 ].concat(userRoutes)
             },
@@ -141,6 +153,10 @@ export default createBrowserRouter([
             {
                 path: "checkout/:cartId",
                 element: <ProtectedRoute><Checkout /></ProtectedRoute>,
+            },
+            {
+                path: "newSubscription",
+                element: <ProtectedRoute><NewSubscription /></ProtectedRoute>,
             },
         ]
     },

@@ -17,10 +17,8 @@ export default function PaymentDetails() {
                     required: true,
                     pattern: /[0-9\s]{13,19}/,
                 })}
-                className={[
-                    "rounded-b-none",
-                    errors.cardNumber && "border-red-500"
-                ]}
+                className={"rounded-b-none"}
+                border={errors.cardNumber ? "border-red-500" : undefined}
                 aria-invalid={errors.cardNumber ? "true" : "false"} 
                 onKeyPress={(e) => {
                     const good = e.target.value.length < 19
@@ -33,10 +31,9 @@ export default function PaymentDetails() {
                     type="tel"
                     placeholder="MM/YY"
                     register={() => register("cardExp", { required: true })}
-                    className={[
-                        "mt-0 rounded-t-none rounded-r-none border-t-0",
-                        errors.cardExp && "border-red-500"
-                    ]}
+                    className={"rounded-t-none rounded-r-none border-t-0"}
+                    margin="mt-0"
+                    border={errors.cardExp ? "border-red-500" : undefined}
                     aria-invalid={errors.cardExp ? "true" : "false"} 
                     onKeyPress={(e) => {
                         const good = e.target.value.length < 7 && e.key >= '0' && e.key <= '9';
@@ -57,10 +54,9 @@ export default function PaymentDetails() {
                     type="tel"
                     placeholder="CVC"
                     register={() => register("cardSec", { required: true })}
-                    className={[
-                        "mt-0 rounded-t-none rounded-l-none border-t-0 border-l-0",
-                        errors.cardSec && "border-red-500"
-                    ]}
+                    className={"rounded-t-none rounded-l-none border-t-0 border-l-0"}
+                    margin="mt-0"
+                    border={errors.cardSec ? "border-red-500" : undefined}
                     aria-invalid={errors.cardSec ? "true" : "false"} 
                     onKeyPress={(e) => {
                         const good = e.target.value.length < 4 && e.key >= '0' && e.key <= '9';

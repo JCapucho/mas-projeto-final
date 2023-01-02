@@ -124,5 +124,15 @@ service cloud.firestore {
             || request.time < request.resource.data.nextDate
         );
     }
+
+    match /animals/{animal} {
+      allow read: if userPath(request.auth.uid) == resource.data.owner
+        || getUser(request.auth.uid).data.staff
+        || getUser(request.auth.uid).data.medic;
+
+      allow write: if userPath(request.auth.uid) == request.resource.data.owner
+        || getUser(request.auth.uid).data.staff
+        || getUser(request.auth.uid).data.medic;
+    }
   }
 }
