@@ -1,6 +1,6 @@
 import { useState } from "react"
 import { LockClosedIcon } from "@heroicons/react/20/solid"
-import { Link, useNavigate } from "react-router-dom";
+import { Link, useNavigate, useLocation } from "react-router-dom";
 
 import { InvalidAuthError } from "../firebase/auth";
 import { login } from "../managers/AuthManager";
@@ -10,6 +10,7 @@ import logo from "../logo.png";
 
 export default function Login() {
     const navigate = useNavigate();
+    const location = useLocation();
     const setUser = useAuthStore(state => state.setUser);
 
     const [email, setEmail] = useState("");
@@ -22,7 +23,7 @@ export default function Login() {
         try {
             const user = await login(email, password);
             setUser(user);
-            navigate("/dashboard");
+            navigate(location.state.intent || "/dashboard", { replace: true });
         } catch (e) {
             if (e instanceof InvalidAuthError)
                 setBanner("The provided email or password is not valid");
@@ -115,6 +116,7 @@ export default function Login() {
                 <div>
                     <Link
                         to={"/register"}
+                        state={{ intent: location.state.intent }}
                         className="w-full block text-center rounded-md border-2 border-gray-500 bg-transparent text-gray-900 py-2 px-4 text-sm font-medium hover:border-gray-900 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:ring-offset-2"
                     >
                         Create an account

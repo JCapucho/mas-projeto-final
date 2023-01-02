@@ -1,6 +1,6 @@
 import { useState } from "react"
 import { LockClosedIcon } from '@heroicons/react/20/solid'
-import { Link, useNavigate } from "react-router-dom";
+import { Link, useNavigate, useLocation } from "react-router-dom";
 
 import { EmailAlreadyInUse } from "../firebase/auth";
 import { register } from "../managers/AuthManager";
@@ -12,6 +12,7 @@ import logo from '../logo.png';
 
 export default function Register() {
     const navigate = useNavigate();
+    const location = useLocation();
     const setUser = useAuthStore(state => state.setUser);
 
     const [firstName, setFirstName] = useState("");
@@ -33,7 +34,7 @@ export default function Register() {
         try {
             const user = await register(email, password, firstName, lastName);
             setUser(user);
-            navigate("/dashboard");
+            navigate(location.state.intent || "/dashboard", { replace: true });
         } catch (e) {
             if (e instanceof EmailAlreadyInUse)
                 setBanner("The provided email is already in use");
@@ -147,6 +148,7 @@ export default function Register() {
                 <div>
                     <Link
                         to={"/login"}
+                        state={{ intent: location.state.intent }}
                         className="w-full block text-center rounded-md border-2 border-gray-500 bg-transparent text-gray-900 py-2 px-4 text-sm font-medium hover:border-gray-900 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:ring-offset-2"
                     >
                         Sign in

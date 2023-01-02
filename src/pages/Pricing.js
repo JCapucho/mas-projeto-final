@@ -7,7 +7,7 @@ function PricingCard({ name, price, best = false, sellingPoints = [] }) {
             best ? "bg-indigo-600 text-white border-2 border-yellow-500" : "bg-white text-black"
         )}
     >
-        {best && <p className="absolute top-0 right-0 p-1 border-b-2 border-l-2 border-yellow-500 rounded-bl">
+        {best && <p className="absolute top-0 right-0 p-1 bg-yellow-500 rounded-bl text-black">
             Most popular
         </p>}
         <p className="pt-4 text-2xl font-bold leading-normal text-center">

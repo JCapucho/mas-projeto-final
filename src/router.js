@@ -2,6 +2,7 @@ import {
     createBrowserRouter,
     Navigate,
     Outlet,
+    useLocation
 } from "react-router-dom";
 
 import useAuthStore, { getUser } from "./store/auth"
@@ -26,11 +27,14 @@ import RemoteAppointment from './pages/RemoteAppointment';
 
 import { LoadingComponent, NotFound, ErrorPage } from './utils';
 
-function ProtectedRoute({ children, loggedIn = true, redirect = "/" }) {
+function ProtectedRoute({ children, loggedIn = true, redirect = "/login" }) {
+    const location = useLocation();
     const { loaded, user } = useAuthStore(state => ({ loaded: state.loaded, user: state.user }));
 
     return <LoadingComponent loading={!loaded}>
-        {(user !== null) === loggedIn ? children : <Navigate to={redirect} replace />}
+        {(user !== null) === loggedIn 
+            ? children 
+            : <Navigate to={redirect} state={{ intent: location.pathname }} replace />}
     </LoadingComponent>
 }
 
