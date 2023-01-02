@@ -21,12 +21,14 @@ import Register from './pages/Register';
 import Appointments from './pages/Appointments';
 import ProductsRoot from './pages/ProductsRoot';
 import Cart from './pages/Cart';
-import Checkout from './pages/Checkout';
-import NewSubscription from './pages/NewSubscription';
-import PaymentSuccessful from './pages/PaymentSuccessful';
-import SubscriptionSuccessful from './pages/SubscriptionSuccessful';
 import RemoteAppointment from './pages/RemoteAppointment';
 import Animals from './pages/Animals';
+import Dashboard from './pages/Dashboard';
+
+import Checkout from './pages/Checkout';
+import PaymentSuccessful from './pages/PaymentSuccessful';
+import NewSubscription from './pages/NewSubscription';
+import SubscriptionSuccessful from './pages/SubscriptionSuccessful';
 
 import { LoadingComponent, NotFound, ErrorPage } from './utils';
 
@@ -104,7 +106,7 @@ export default createBrowserRouter([
                 children: [
                     {
                         index: true,
-                        element: <></>,
+                        element: <Dashboard />,
                     },
                     {
                         path: "cart",

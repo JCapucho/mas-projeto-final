@@ -1,3 +1,5 @@
+import { Link } from "react-router-dom";
+
 import useAnimalsStore from "../store/animals";
 
 import { LoadingComponent } from "../utils";
@@ -30,9 +32,19 @@ export default function Animals() {
         state.animals,
     ]);
 
-    return <LoadingComponent loading={!loaded}>
-        <div className="flex flex-wrap justify-center items-center gap-5 m-5">
-            {animals.map((animal, i) => <AnimalCard key={i} animal={animal} />)}
+    return <>
+        <LoadingComponent loading={!loaded}>
+            <div className="flex flex-wrap justify-center items-center gap-5 m-5">
+                {animals.map((animal, i) => <AnimalCard key={i} animal={animal} />)}
+            </div>
+        </LoadingComponent>
+        <div className="flex justify-center mt-4">
+            <Link
+                to={"/newSubscription"}
+                className="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded disabled:bg-gray-700"
+            >
+                Subscribe another pet
+            </Link>
         </div>
-    </LoadingComponent>
+    </>;
 }

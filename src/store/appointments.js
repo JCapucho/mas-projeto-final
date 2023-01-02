@@ -7,13 +7,15 @@ import {
     approveAppointment 
 } from "../managers/AppointmentsManager";
 
-import { addLogoutHook } from "./auth";
+import useAuthStore, { addLogoutHook } from "./auth";
 
 const useAppointmentsStore = createStore("AppointmentsStore", (set) => ({
+    loaded: false,
+
     appointments: [],
 
     actions: {
-        removeAll: () => set({ appointments: [] }),
+        removeAll: () => set({ loaded: false, appointments: [] }),
         appointmentApproved: async (appointment) => {
             await approveAppointment(appointment.id, appointment.modified);
 
@@ -63,7 +65,7 @@ const useAppointmentsStore = createStore("AppointmentsStore", (set) => ({
                 const newApts = state.appointments
                     .filter(apt => apt.owner.id !== userId)
                     .concat(apts);
-                return { appointments: newApts }
+                return { loaded: true, appointments: newApts }
             })
         },
         loadResponsibleAppointments: async (userId) => {
@@ -86,6 +88,11 @@ const useAppointmentsStore = createStore("AppointmentsStore", (set) => ({
 
 addLogoutHook(async () => {
     useAppointmentsStore.getState().actions.removeAll();
+});
+
+useAuthStore.subscribe(state => {
+    if (state.user !== null)
+        useAppointmentsStore.getState().actions.loadUserAppointments(state.user.id);
 });
 
 export default useAppointmentsStore;
