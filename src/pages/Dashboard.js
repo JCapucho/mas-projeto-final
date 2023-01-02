@@ -39,7 +39,7 @@ export default function Dashboard() {
         state.currentCart
     ]);
 
-    return <div className="m-5 flex flex-wrap gap-5 justify-around">
+    return <div className="m-5 flex flex-wrap gap-5 justify-around max-w-7xl">
         <div>
             <h1 className="text-2xl font-semibold text-center">My pets</h1>
             <LoadingComponent loading={!animalsLoaded}>

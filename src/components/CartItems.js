@@ -49,12 +49,12 @@ export default function CartItems({ controls = true, cart }) {
     );
 
     useEffect(() => {
-        const ids = Object.keys(cart.products);
+        const ids = Object.keys(cart.products ?? {});
         actions.loadProducts(ids);
     }, [cart.products, actions]);
 
     return <div>
-        {Object.entries(cart.products).map(([id, quantity], i) =>
+        {Object.entries(cart.products ?? {}).map(([id, quantity], i) =>
             products[id] && <CartItem
                 key={i}
                 cartId={cart.id}

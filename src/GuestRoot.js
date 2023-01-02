@@ -80,7 +80,7 @@ export default function GuestRoot() {
                         <Dialog.Panel focus="true" className="fixed inset-0 z-10 overflow-y-auto bg-white px-6 py-6 lg:hidden">
                             <div className="flex h-9 items-center justify-between">
                                 <div className="flex">
-                                    <Link className="-m-1.5 p-1.5" to={"/"}>
+                                    <Link className="-m-1.5 p-1.5" to={"/"} onClick={() => setMobileMenuOpen(false)}>
                                         <span className="sr-only">PetYard</span>
                                         <img className="h-8" src={logo} alt="PetYard" />
                                     </Link>
@@ -104,6 +104,7 @@ export default function GuestRoot() {
                                                 key={item.name}
                                                 to={item.path}
                                                 className="-mx-3 block rounded-lg py-2 px-3 text-base font-semibold leading-7 text-gray-900 hover:bg-gray-400/10"
+                                                onClick={() => setMobileMenuOpen(false)}
                                             >
                                                 {item.name}
                                             </Link>
