@@ -91,8 +91,11 @@ addLogoutHook(async () => {
 });
 
 useAuthStore.subscribe(state => {
-    if (state.user !== null)
+    if (state.user !== null) {
+        if (state.user.medic)
+            useAppointmentsStore.getState().actions.loadResponsibleAppointments(state.user.id);
         useAppointmentsStore.getState().actions.loadUserAppointments(state.user.id);
+    }
 });
 
 export default useAppointmentsStore;

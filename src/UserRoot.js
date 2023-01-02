@@ -49,16 +49,18 @@ function CartLink() {
 
 export default function UserRoot() {
     const navigate = useNavigate();
-    const authActions = useAuthStore(state => state.actions);
+    const [user, authActions] = useAuthStore(state => [state.user, state.actions]);
     const [animalsLoaded, animals] = useAnimalsStore(state => [
         state.loaded,
         state.animals,
     ]);
 
+    const regularUser = !user.staff && !user.medic;
+
     useEffect(() => {
-        if (animalsLoaded && animals.length === 0)
+        if (regularUser && animalsLoaded && animals.length === 0)
             navigate("/newSubscription")
-    }, [animals, animalsLoaded, navigate]);
+    }, [animals, animalsLoaded, navigate, regularUser]);
 
     function logout() {
         authActions.logout();
@@ -98,7 +100,7 @@ export default function UserRoot() {
                                     </div>
                                 </div>
                                 <div className="absolute inset-y-0 right-0 flex items-center pr-2 sm:static sm:inset-auto sm:ml-6 sm:pr-0">
-                                    <CartLink />
+                                    {regularUser && <CartLink />}
                                     {/* Profile dropdown */}
                                     <Menu as="div" className="relative ml-3">
                                         <div>

@@ -56,7 +56,7 @@ export default function ScheduleAppointmentClinic({ locationSelected, newEvent, 
 
     return <form onSubmit={submit}>
         {banner !== null &&
-            <div className="my-5 border border-red-400 rounded-b bg-red-100 px-4 py-3 text-red-700">
+            <div className="my-5 border border-red-400 rounded bg-red-100 px-4 py-3 text-red-700">
                 {banner}
             </div>
         }
