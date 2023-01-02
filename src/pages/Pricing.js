@@ -1,6 +1,8 @@
+import { Link } from "react-router-dom";
+
 import { classNames } from "../utils";
 
-function PricingCard({ name, price, best = false, sellingPoints = [] }) {
+function PricingCard({ name, price, index, best = false, sellingPoints }) {
     return <div
         className={classNames(
             "relative max-w-xs p-4 rounded-lg shadow-lg w-72 flex flex-col",
@@ -31,34 +33,36 @@ function PricingCard({ name, price, best = false, sellingPoints = [] }) {
             </li>)}
         </ul>
         <div className="py-4 text-center">
-            <button 
+            <Link
+                to={"/newSubscription"}
+                state={{ plan: index }}
                 className={classNames(
                     "py-2 px-4 w-full transition ease-in duration-200 text-center text-base font-semibold shadow-md focus:outline-none focus:ring-2 focus:ring-offset-2 rounded-lg",
                     best ? "bg-white text-black hover:bg-slate-300 focus:ring-slate-100 focus:ring-offset-indigo-200"
                          : "bg-indigo-600 text-white hover:bg-indigo-700 focus:ring-indigo-500 focus:ring-offset-indigo-200"
                 )}
             >
-                Try it free
-            </button>
+                Subscribe your pet
+            </Link>
         </div>
     </div>;
 }
 
 export default function Pricing() {
     return <div className="flex flex-wrap justify-center p-10 gap-5">
-        <PricingCard name={'Basic'} price={9} sellingPoints={[
+        <PricingCard name={'Basic'} index={0} price={9} sellingPoints={[
             "Up to 5 appointments per month",
             "Track your pet's growth",
             "Receive custom diet plans",
             "Receive home",
         ]} />
-        <PricingCard name={'Advanced'} price={15} best={true} sellingPoints={[
+        <PricingCard name={'Advanced'} index={1} price={15} best={true} sellingPoints={[
             "All the basic plan features plus",
             "Up to 10 appointments per month",
             "Half the shipping fees",
             "Access to remote appointments",
         ]} />
-        <PricingCard name={'Best Friend'} price={19} sellingPoints={[
+        <PricingCard name={'Best Friend'} index={2} price={19} sellingPoints={[
             "All the pro plan features plus",
             "Unlimited appointments",
             "No shipping fees",

@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { useSubmit } from "react-router-dom";
+import { Link, useSubmit, useLocation } from "react-router-dom";
 import { useForm, FormProvider, useFormContext, Controller } from "react-hook-form";
 import Datepicker from "react-tailwindcss-datepicker";
 
@@ -12,6 +12,7 @@ import RadioInput from "../components/RadioInput";
 import PaymentDetails from "../components/PaymentDetails";
 
 import "./NewSubscription.css";
+import logo from "../logo.png";
 
 const plans = [
     { name: "Basic", price: 9 },
@@ -84,12 +85,13 @@ function AnimalInfo() {
 }
 
 export default function NewSubscription() {
+    const location = useLocation();
     const user = useAuthStore(state => state.user);
     const actions = useAnimalsStore(state => state.actions);
     const submit = useSubmit();
     const formMethods = useForm();
 
-    const [selected, setSelected] = useState(plans[0]);
+    const [selected, setSelected] = useState(plans[location.state.plan ?? 0]);
 
     async function onSubmit(data) {
         await actions.newAnimal(user, {
@@ -105,7 +107,14 @@ export default function NewSubscription() {
     return <div className="flex items-center justify-center py-12 px-4 sm:px-6 lg:px-8">
         <FormProvider {...formMethods} >
             <form className="p-10" onSubmit={formMethods.handleSubmit(onSubmit)}>
-                <h1 className="text-center my-auto text-2xl mb-5 font-semibold">New subscription</h1>
+                <h1 className="text-center my-auto text-2xl font-semibold">New subscription</h1>
+                <Link to={"/"}>
+                    <img
+                        className="mx-auto h-28 w-auto mb-5"
+                        src={logo}
+                        alt="PetYard"
+                    />
+                </Link>
                 <div className="mb-5 border-b border-gray-400">
                     <RadioInput
                         className="mb-5"
