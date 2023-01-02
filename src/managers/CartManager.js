@@ -28,8 +28,8 @@ export async function getUserCarts(userId) {
     cartsQuery.forEach((doc) => {
         const cart = doc.data();
         cart.id = doc.id;
-        cart.lastDate = cart.lastDate.toDate();
-        cart.nextDate = cart.nextDate?.toDate();
+        cart.lastDate = cart.lastDate.toDate() ?? null;
+        cart.nextDate = cart.nextDate?.toDate() ?? null;
         carts.push(cart);
     });
 
@@ -59,8 +59,8 @@ export async function getUserCartDraft(userId) {
         products: {}
     };
 
-    cart.lastDate = cart.lastDate?.toDate();
-    cart.nextDate = cart.nextDate?.toDate();
+    cart.lastDate = cart.lastDate?.toDate() ?? null;
+    cart.nextDate = cart.nextDate?.toDate() ?? null;
 
     return cart;
 }

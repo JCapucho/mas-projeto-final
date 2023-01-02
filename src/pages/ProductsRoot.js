@@ -18,7 +18,7 @@ export default function Products() {
 
     const isStaff = user?.staff === true;
 
-    return <div className="mx-auto max-w-7xl">
+    return <div className="w-full mx-auto max-w-7xl">
         {isStaff &&
             <>
                 <NewSectionForm open={sectionModal} onClose={() => setSectionModal(false)} />

@@ -48,15 +48,15 @@ export default function ProductsRoute() {
                     Return to sections
                 </Link>
             </div>
+            <div className="flex flex-wrap justify-center items-center gap-5 m-5">
+                {Object.values(products).map((product, i) => 
+                    <ProductCard key={i} product={product} edit={() => {
+                        setEditProduct(i);
+                        setProductModal(true);
+                    }} />
+                )}
+            </div>
         </LoadingComponent>
-        <div className="flex flex-wrap justify-center items-center gap-5 m-5">
-            {Object.values(products).map((product, i) => 
-                <ProductCard key={i} product={product} edit={() => {
-                    setEditProduct(i);
-                    setProductModal(true);
-                }} />
-            )}
-        </div>
     </>;
 }
 
