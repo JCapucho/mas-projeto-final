@@ -17,7 +17,7 @@ function StaffControls({appointment, appointmentApproved, user}) {
         && appointment.end >= now
     ) {
         return <Link
-            to={`../remote/${appointment.id}`}
+            to={`/dashboard/remote/${appointment.id}`}
             className="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded disabled:bg-gray-700"
         >
             Enter call
