@@ -48,6 +48,6 @@ export async function registerWithEmailAndPassword(email, password, firstName, l
     }
 }
 
-export function logout() {
-    signOut(auth);
+export async function logout() {
+    return await signOut(auth);
 }

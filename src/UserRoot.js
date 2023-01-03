@@ -49,7 +49,7 @@ function CartLink() {
 
 export default function UserRoot() {
     const navigate = useNavigate();
-    const [user, authActions] = useAuthStore(state => [state.user, state.actions]);
+    const user = useAuthStore(state => state.user);
     const [animalsLoaded, animals] = useAnimalsStore(state => [
         state.loaded,
         state.animals,
@@ -61,11 +61,6 @@ export default function UserRoot() {
         if (regularUser && animalsLoaded && animals.length === 0)
             navigate("/newSubscription")
     }, [animals, animalsLoaded, navigate, regularUser]);
-
-    function logout() {
-        authActions.logout();
-        navigate("/");
-    }
 
     return (
         <>
@@ -135,12 +130,12 @@ export default function UserRoot() {
                                                 </Menu.Item>
                                                 <Menu.Item>
                                                     {({ active }) => (
-                                                        <button
+                                                        <Link
+                                                            to={"/logout"}
                                                             className={classNames(active ? 'bg-gray-100' : '', 'block px-4 py-2 text-sm text-gray-700 w-full text-left')}
-                                                            onClick={logout}
                                                         >
                                                             Sign out
-                                                        </button>
+                                                        </Link>
                                                     )}
                                                 </Menu.Item>
                                             </Menu.Items>

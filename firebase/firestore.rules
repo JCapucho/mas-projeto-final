@@ -10,8 +10,8 @@ service cloud.firestore {
     }
 
     match /users/{user} {
-      allow read: if resource.data.medic
-        || request.auth.uid == user
+      allow read: if request.auth.uid == user
+        || (resource.data.medic && request.auth != null)
         || getUser(request.auth.uid).data.staff;
 
       allow update: if (

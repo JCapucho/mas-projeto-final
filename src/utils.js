@@ -1,4 +1,7 @@
-import { useRouteError } from "react-router-dom";
+import { useEffect } from "react";
+import { useRouteError, Navigate } from "react-router-dom";
+
+import useAuthStore from "./store/auth"
 
 export function classNames(...classes) {
     return classes.flat().filter(Boolean).join(' ')
@@ -52,4 +55,14 @@ export function ErrorPage() {
         </div>
         <h1 className="text-center text-xl">Don't worry, the dog says it's fine</h1>
     </div>;
+}
+
+export function LogOut() {
+    const actions = useAuthStore(state => state.actions);
+
+    useEffect(() => {
+        actions.logout();
+    }, [actions]);
+
+    return <Navigate to={"/"} replace />;
 }

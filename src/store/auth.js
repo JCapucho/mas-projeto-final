@@ -17,7 +17,7 @@ const useAuthStore = createStore("AuthStore", (set) => ({
             await Promise.all(logoutHooks.map(hook => 
                  Promise.resolve(hook())
             ));
-            logout();
+            await logout();
 
             set({ user: null })
         }
