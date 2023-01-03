@@ -3,6 +3,7 @@ import {
     Navigate,
     Outlet,
     useLocation,
+    redirect
 } from "react-router-dom";
 
 import useAuthStore, { getUser } from "./store/auth"
@@ -30,7 +31,7 @@ import PaymentSuccessful from './pages/PaymentSuccessful';
 import NewSubscription from './pages/NewSubscription';
 import SubscriptionSuccessful from './pages/SubscriptionSuccessful';
 
-import { LoadingComponent, NotFound, ErrorPage, LogOut } from './utils';
+import { LoadingComponent, NotFound, ErrorPage } from './utils';
 
 function ProtectedRoute({ children, loggedIn = true, redirect = "/login" }) {
     const location = useLocation();
@@ -162,7 +163,10 @@ export default createBrowserRouter([
             },
             {
                 path: "logout",
-                element: <LogOut />,
+                loader: async () => {
+                    await useAuthStore.getState().actions.logout();
+                    return redirect("/");
+                }
             },
         ]
     },

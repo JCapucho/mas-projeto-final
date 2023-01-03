@@ -36,6 +36,7 @@ export default function ProductCard({ product, edit }) {
             type="button"
             className="px-4 py-2.5 bg-red-500 text-xs leading-tight uppercase rounded shadow-md hover:bg-red-600 hover:shadow-lg focus:bg-red-600 focus:shadow-lg focus:outline-none focus:ring-0 active:bg-red-700 active:shadow-lg transition duration-150 ease-in-out flex items-center justify-between"
             onClick={addToCart}
+            data-thook={`product-${product.id}`}
         >
             Add to cart
             <ShoppingCartIcon className="h-6 w-6 ml-3" />

@@ -31,6 +31,7 @@ function NextDatePicker({ cart, cartActions }) {
             </div>
         }
         <Datepicker
+            containerClassName={"recurring-date-picker"}
             value={{ startDate: cart.nextDate, endDate: cart.nextDate }}
             onChange={handleNextDateChanged}
             asSingle={true}
@@ -51,7 +52,7 @@ export default function CurrentCart({ controls = true, id = null }) {
             <CartItems cart={cart} />
             <div className="flex justify-center mt-4">
                 <div className="shadow-lg p-5 flex flex-col justify-center">
-                    <FormCheckbox checked={cart.recurring || false} changed={cartActions.toggleRecurring}>
+                    <FormCheckbox checked={cart.recurring || false} changed={cartActions.toggleRecurring} name="recurring">
                         <span className="text-xl">Recurring</span>
                     </FormCheckbox>
                     {cart.recurring && <NextDatePicker cart={cart} cartActions={cartActions} />}

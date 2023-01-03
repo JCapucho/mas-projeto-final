@@ -191,18 +191,18 @@ function CartPane({ fees, cartId }) {
         <div className="border-t border-gray-400 pt-2 m-5">
             <div className="flex justify-between">
                 <h2 className="text-lg">Subtotal</h2>
-                <h2 className="text-xl font-semibold">{subtotal.toFixed(2)}€</h2>
+                <h2 className="text-xl font-semibold" data-thook="checkout-subtotal">{subtotal.toFixed(2)}€</h2>
             </div>
 
             <div className="flex justify-between">
                 <h2 className="text-lg">Shipping</h2>
-                <h2 className="text-xl font-semibold">{fees === 0 ? "Free" : fees.toFixed(2) + "€"}</h2>
+                <h2 className="text-xl font-semibold" data-thook="checkout-fees">{fees === 0 ? "Free" : fees.toFixed(2) + "€"}</h2>
             </div>
         </div>
 
         <div className="border-t border-gray-400 flex justify-between pt-2 m-5">
             <h2 className="text-xl">Total</h2>
-            <h2 className="text-2xl font-semibold">{total.toFixed(2)}€</h2>
+            <h2 className="text-2xl font-semibold" data-thook="checkout-total">{total.toFixed(2)}€</h2>
         </div>
 
         { cart.recurring && <RecurringNotice cart={cart} /> }

@@ -84,7 +84,7 @@ export default function Cart() {
 
             {!cartId && carts.length !== 0 && <>
                 <h1 className="text-center text-3xl font-semibold border-t border-gray-400 p-5 mt-10">Stored carts</h1>
-                <div className="flex gap-5 overflow-x-auto p-5">
+                <div className="flex gap-5 overflow-x-auto p-5" data-thook="saved-carts-list">
                     {carts.map((cart, i) => <CartCard key={i} cart={cart} />)}
                 </div>
             </>}

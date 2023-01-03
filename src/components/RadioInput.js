@@ -1,8 +1,9 @@
 import { RadioGroup } from '@headlessui/react'
 import { CheckIcon } from '@heroicons/react/20/solid'
 
-function RadioOption({ data, render }) {
+function RadioOption({ data, render, by }) {
     const renderData = render(data);
+    const thook = by ? data[by] : renderData.label;
 
     return <RadioGroup.Option
         value={data}
@@ -20,7 +21,7 @@ function RadioOption({ data, render }) {
     >
         {({ active, checked }) => (
         <>
-            <div className="flex w-full items-center justify-between">
+            <div className="flex w-full items-center justify-between" data-thook={thook}>
                 <div className="flex items-center">
                     <div className="text-sm">
                         <RadioGroup.Label
@@ -52,11 +53,11 @@ function RadioOption({ data, render }) {
     </RadioGroup.Option>;
 }
 
-export default function RadioInput({ label, selected, onChange, options, render, className, ...rest }) {
-    return <RadioGroup value={selected} onChange={onChange} className={className} {...rest}>
+export default function RadioInput({ label, selected, onChange, options, render, className, by, ...rest }) {
+    return <RadioGroup value={selected} onChange={onChange} className={className} by={by} {...rest}>
         <RadioGroup.Label className="sr-only">{label}</RadioGroup.Label>
         <div className="space-y-2">
-            {options.map((option, i) => <RadioOption key={i} data={option} render={render} />)}
+            {options.map((option, i) => <RadioOption key={i} data={option} render={render} by={by} />)}
         </div>
     </RadioGroup>;
 }

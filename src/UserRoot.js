@@ -13,7 +13,7 @@ import useAnimalsStore from "./store/animals";
 
 import logo from './logo.png';
 
-function NavBarLink({ item, className, children }) {
+function NavBarLink({ item, className, children, ...rest }) {
     const resolver = useResolvedPath(item.path);
     const match = useMatch({ path: resolver.pathname, end: true });
 
@@ -24,6 +24,7 @@ function NavBarLink({ item, className, children }) {
             className,
             'px-3 py-2 rounded-md text-sm font-medium',
         )}
+        {...rest}
     >
         {children || item.name}
     </Link>
@@ -36,12 +37,15 @@ function CartLink() {
     const [cart, productsInCart] = useCartStore(state => [state.currentCart, state.productsInCart]);
     const itemCount = productsInCart(cart);
 
-    return <NavBarLink item={{ path: "cart" }} className="relative">
+    return <NavBarLink item={{ path: "cart" }} className="relative" data-thook="draft-cart">
         <ShoppingCartIcon className="h-6 w-6 text-white" />
         <span className="sr-only">Shopping cart</span>
         {!match
             && itemCount > 0
-            && <div className="inline-flex absolute -top-0.5 -right-0.5 justify-center items-center w-5 h-5 text-xs font-bold text-white bg-red-500 rounded-full border border-white">
+            && <div
+                data-thook="cart-item-count"
+                className="inline-flex absolute -top-0.5 -right-0.5 justify-center items-center w-5 h-5 text-xs font-bold text-white bg-red-500 rounded-full border border-white"
+            >
                 {itemCount}
             </div>}
     </NavBarLink>;

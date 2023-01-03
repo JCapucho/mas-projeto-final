@@ -28,7 +28,8 @@ function CartItem({ cartId, quantity, product, controls }) {
                 <CounterInput
                     value={quantity}
                     changed={(value) => cartActions.changeQuantity(product.id, value)}
-                    min={1} />
+                    min={1}
+                    data-thook={`cart-product-quantity-${product.id}`} />
                 <h5 className="text-gray-900 text-lg text-center my-auto">{(product.price * quantity).toFixed(2)}€</h5>
             </div>
 
@@ -53,7 +54,7 @@ export default function CartItems({ controls = true, cart }) {
         actions.loadProducts(ids);
     }, [cart.products, actions]);
 
-    return <div>
+    return <div data-thook={`cart-products-list`}>
         {Object.entries(cart.products ?? {}).map(([id, quantity], i) =>
             products[id] && <CartItem
                 key={i}

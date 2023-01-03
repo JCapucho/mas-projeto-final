@@ -72,7 +72,8 @@ function AnimalInfo() {
                 control={control}
                 name="born"
                 render={({ field }) => <Datepicker
-                    inputClassName={errors.born && "date-picker-error"}
+                    inputClassName={errors.born ? "date-picker-error" : ""}
+                    containerClassName={"born-date-picker"}
                     value={{ startDate: field.value, endDate: field.value }}
                     onChange={newValue => field.onChange(new Date(newValue.startDate))}
                     asSingle={true}
@@ -123,6 +124,7 @@ export default function NewSubscription() {
                         onChange={setSelected}
                         options={plans}
                         by="name"
+                        data-thook="plan"
                         render={plan => ({
                             label: plan.name,
                             description: `${plan.price.toFixed(2)}€`

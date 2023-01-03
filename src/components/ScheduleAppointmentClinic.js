@@ -63,6 +63,7 @@ export default function ScheduleAppointmentClinic({ locationSelected, newEvent, 
 
         <LoadingComponent loading={loading}>
             <RadioInput
+                data-thook="clinics-list"
                 className="mb-5"
                 label={"Clinic"}
                 selected={selected}
@@ -76,6 +77,7 @@ export default function ScheduleAppointmentClinic({ locationSelected, newEvent, 
             rows="3"
             value={reason}
             changed={setReason}
+            name="appointment-reason"
             required
         >
             Reason for appointment

@@ -86,12 +86,16 @@ export async function saveUserCartDraft(userId, cart) {
 
 /// Saves the user's draft card as a permanent cart
 export async function storeDraftCart(userId) {
+    const ownerRef = doc(usersCollection, userId);
     const cartRef = doc(cartsCollection);
-    const draftCartRef = doc(usersCollection, userId, "private", "cart");
+    const draftCartRef = doc(ownerRef, "private", "cart");
+
     return await runTransaction(db, async (transaction) => {
         const cartDoc = await transaction.get(draftCartRef);
         const data = cartDoc.data();
 
+        data.owner = ownerRef;
+        data.recurring = data.recurring ?? false;
         data.lastDate = new Date();
 
         transaction.set(cartRef, data);

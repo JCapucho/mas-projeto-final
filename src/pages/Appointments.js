@@ -66,14 +66,16 @@ function UserAppointments() {
         state => [state.appointments, state.actions]
     );
 
-    return appointments.map((appointment, i) =>
-        <UserAppointmentEntry
-            key={i}
-            appointment={appointment}
-            appointmentApproved={aptsActions.appointmentApproved}
-            user={user}
-        />
-    );
+    return <div data-thook="user-appointments">
+        {appointments.map((appointment, i) =>
+            <UserAppointmentEntry
+                key={i}
+                appointment={appointment}
+                appointmentApproved={aptsActions.appointmentApproved}
+                user={user}
+            />
+        )}
+    </div>;
 }
 
 function SelectionLink({ to, children, className, ...rest }) {

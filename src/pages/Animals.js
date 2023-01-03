@@ -34,7 +34,7 @@ export default function Animals() {
 
     return <>
         <LoadingComponent loading={!loaded}>
-            <div className="flex flex-wrap justify-center items-center gap-5 m-5">
+            <div className="flex flex-wrap justify-center items-center gap-5 m-5" data-thook="animals-list">
                 {animals.map((animal, i) => <AnimalCard key={i} animal={animal} />)}
             </div>
         </LoadingComponent>

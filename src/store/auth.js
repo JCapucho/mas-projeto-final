@@ -24,11 +24,17 @@ const useAuthStore = createStore("AuthStore", (set) => ({
     }
 }));
 
-hookAuthChanged(user => {
-    if (user !== null)
-        getUserData(user.uid).then((user) => useAuthStore.setState({ loaded: true, user }));
-    else
-        useAuthStore.setState({ loaded: true, user })
+hookAuthChanged(async firebaseUser => {
+    if (firebaseUser !== null) {
+        try {
+            const user = await getUserData(firebaseUser.uid);
+            useAuthStore.setState({ loaded: true, user });
+        } catch(e) {
+            useAuthStore.setState({ loaded: true, user: null })
+        }
+    } else {
+        useAuthStore.setState({ loaded: true, user: null })
+    }
 });
 
 export function addLogoutHook(hook) {

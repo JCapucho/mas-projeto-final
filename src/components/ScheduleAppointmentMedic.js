@@ -70,6 +70,7 @@ export default function ScheduleAppointmentMedic({ medicSelected, newEvent, onSc
 
         <LoadingComponent loading={loading}>
             <RadioInput
+                data-thook="medics-list"
                 label={"Medic"}
                 selected={selected}
                 onChange={onChange}
@@ -79,13 +80,14 @@ export default function ScheduleAppointmentMedic({ medicSelected, newEvent, onSc
                     description: `${medic.speciality}`
                 })} />
         </LoadingComponent>
-        <FormCheckbox value={remote} changed={setRemote}>
+        <FormCheckbox value={remote} changed={setRemote} name="remote-appointment">
             Remote appointment
         </FormCheckbox>
         <FormTextarea
             rows="3"
             value={reason}
             changed={setReason}
+            name="appointment-reason"
             required
         >
             Reason for appointment
