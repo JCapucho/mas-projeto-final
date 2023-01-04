@@ -1,32 +1,47 @@
-# Available Scripts
+# Install dependencies
 
-In the project directory, you can run:
+Before being able to use the project it's dependencies must be installed,
+this can be done by running:
 
-## `npm start`
+```bash
+npm install
+```
 
-Runs the app in the development mode. Open
-[http://localhost:3000](http://localhost:3000) to view it in your browser.
+# Starting the app for development
+
+To start the app in development mode run:
+
+```bash
+npm start
+```
+
+This will start the app at [http://localhost:3000](http://localhost:3000)
+and automatically open it in your browser.
 
 The page will reload when you make changes. You may also see any lint errors in
 the console.
 
-## `npm test`
+# Starting the app in test mode
 
-Launches the test runner in the interactive watch mode. See the section about
-[running tests](https://facebook.github.io/create-react-app/docs/running-tests)
-for more information.
+To start the app in test mode run:
 
-## `npm run build`
+```bash
+npm test
+```
 
-Builds the app for production to the `build` folder. It correctly bundles React
-in production mode and optimizes the build for the best performance.
+This will start the app at [http://localhost:3000](http://localhost:3000)
+with a temporary services and some test data so that tests can be reproduced
+between runs.
 
-The build is minified and the filenames include the hashes. Your app is ready to
-be deployed!
+# Build the application for deployment
 
-See the section about
-[deployment](https://facebook.github.io/create-react-app/docs/deployment) for
-more information.
+To build the application for deployment, run:
+
+```bash
+npm run build
+```
+
+This will build the app for production in the `build` folder.
 
 # Firebase emulators
 
