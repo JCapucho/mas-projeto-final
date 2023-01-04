@@ -120,7 +120,7 @@ service cloud.firestore {
 
       allow create: if (userPath(request.auth.uid) == request.resource.data.owner || getUser(request.auth.uid).data.staff)
         && (
-            !request.resource.data.keys().hasAny(["nextDate"])
+            !request.resource.data.recurring
             || request.time < request.resource.data.nextDate
         );
     }
