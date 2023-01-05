@@ -1,3 +1,5 @@
+[Live version](https://projeto-final-mas.web.app/)
+
 # Install dependencies
 
 Before being able to use the project it's dependencies must be installed,
